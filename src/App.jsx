@@ -49,6 +49,27 @@ function Header({ onUpload, onClear, hasData }) {
           </h1>
         </div>
         <div className="flex items-center gap-3">
+          <div 
+            className="hidden sm:flex items-center gap-2 text-xs text-slate-400 bg-slate-700/50 px-3 py-1.5 rounded-full cursor-help relative group"
+            title=""
+          >
+            <span className="text-blue-400">🔒</span>
+            <span>Local processing only</span>
+            
+            {/* Tooltip */}
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-slate-800 text-slate-200 text-xs rounded-lg shadow-xl border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 w-64">
+              <div className="text-center">
+                <p className="font-medium mb-1">Your data stays on your device</p>
+                <p className="text-slate-300 leading-relaxed">
+                  CSV files are processed entirely in your web browser using JavaScript. 
+                  No data is uploaded to servers or stored externally. 
+                  Your timesheet information remains completely private and secure.
+                </p>
+              </div>
+              {/* Tooltip arrow */}
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-800"></div>
+            </div>
+          </div>
           <input
             ref={inputRef}
             type="file"
@@ -681,7 +702,21 @@ export default function App() {
                   <Upload size={32} className="text-lime-400" />
                 </div>
                 <h3 className="oryx-heading text-xl mb-2">Get Started</h3>
-                <p className="text-slate-400">Upload a CSV to see insights. Expected UK date format dd/MM/yyyy.</p>
+                <p className="text-slate-400 mb-4">Upload a CSV to see insights. Expected UK date format dd/MM/yyyy.</p>
+                <div className="bg-slate-700/50 rounded-lg p-4 max-w-2xl mx-auto">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 mt-0.5">
+                      <span className="text-blue-400">🔒</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm text-slate-300 font-medium mb-1">Your Data Stays Private</p>
+                      <p className="text-xs text-slate-400 leading-relaxed">
+                        All CSV processing happens locally in your browser. Your data never leaves your device or gets sent to any server. 
+                        This ensures complete privacy and security of your timesheet information.
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </div>
             ) : (
               <>

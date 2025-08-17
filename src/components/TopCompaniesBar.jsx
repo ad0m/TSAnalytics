@@ -5,24 +5,36 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
-    // Group by company and sum billable hours
+    // Group by company and sum billable hours, also collect project details
     const companyData = {}
     
     for (const row of filteredRows) {
       if (!row.isBillable) continue // Only billable hours
       
       const company = row.Company || 'Unknown'
+      const project = row['Project Type'] || 'Unknown'
+      
       if (!companyData[company]) {
-        companyData[company] = 0
+        companyData[company] = {
+          totalHours: 0,
+          projects: {}
+        }
       }
-      companyData[company] += row.Hours
+      
+      companyData[company].totalHours += row.Hours
+      
+      if (!companyData[company].projects[project]) {
+        companyData[company].projects[project] = 0
+      }
+      companyData[company].projects[project] += row.Hours
     }
     
     // Convert to array, sort, and take top 10
     const result = Object.entries(companyData)
-      .map(([company, hours]) => ({
+      .map(([company, data]) => ({
         company,
-        hours: Math.round(hours * 4) / 4 // Round to 0.25
+        hours: Math.round(data.totalHours * 4) / 4, // Round to 0.25
+        projects: data.projects
       }))
       .filter(item => !['OryxAlign', 'OryxAlign-Internal c/code'].includes(item.company)) // Exclude internal companies
       .sort((a, b) => b.hours - a.hours)
@@ -33,13 +45,29 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const data = payload[0].payload
+      const projects = data.projects || {}
+      
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
-          <p className="text-xs text-slate-300">
-            Billable Hours: {payload[0].value}h
-          </p>
-          <p className="text-xs text-cyan-400 mt-1">
+        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl min-w-48">
+          <p className="text-sm font-medium text-white mb-2">Company: {label}</p>
+          
+          {/* Project breakdown */}
+          {Object.entries(projects).map(([project, hours]) => (
+            <div key={project} className="flex justify-between items-center text-xs text-slate-300 mb-1">
+              <span className="truncate max-w-32">{project}:</span>
+              <span className="text-cyan-400 font-medium">{Math.round(hours * 4) / 4}h</span>
+            </div>
+          ))}
+          
+          <div className="border-t border-slate-600 pt-2 mt-2">
+            <div className="flex justify-between items-center text-xs">
+              <span className="text-slate-300">Total Hours:</span>
+              <span className="text-white font-semibold">{payload[0].value}h</span>
+            </div>
+          </div>
+          
+          <p className="text-xs text-cyan-400 mt-2 text-center">
             Click to filter by this company
           </p>
         </div>
@@ -68,13 +96,19 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   return (
     <div className="oryx-card p-6">
       <h3 className="oryx-heading text-lg mb-4">Top 10 Companies by Billable Hours</h3>
-      <div className="h-80">
+      <div className="h-96">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
             layout="vertical" 
             margin={{ left: 12, right: 24, top: 8, bottom: 8 }}
           >
+            <defs>
+              <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.8}/>
+                <stop offset="100%" stopColor="#06b6d4" stopOpacity={1}/>
+              </linearGradient>
+            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis 
               type="number" 
@@ -97,7 +131,7 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill="#22d3ee"
+                  fill="url(#barGradient)"
                   className="hover:opacity-80 transition-opacity"
                 />
               ))}
