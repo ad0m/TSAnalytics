@@ -47,7 +47,7 @@ A comprehensive React-based analytics dashboard for timesheet data analysis, bui
 The application expects CSV files with the following structure:
 - **Date**: UK format (DD/MM/YYYY, D/M/YYYY, or DD/MM/YY)
 - **Member**: Team member name
-- **Role**: Team/department (Cloud, Network, PM, etc.)
+- **Role**: Team/Department (Cloud, Network, PM, etc.)
 - **Company**: Client name
 - **Project Type**: Work category
 - **Hours**: Time logged (decimal format)
