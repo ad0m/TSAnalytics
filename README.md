@@ -1,4 +1,4 @@
-# OryxAlign - Timesheet Analytics Dashboard
+# Timesheet Analytics Dashboard
 
 A comprehensive React-based analytics dashboard for timesheet data analysis, built with Vite and modern web technologies.
 
