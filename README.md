@@ -1,5 +1,7 @@
 # Timesheet Analytics Dashboard
 
+[![Deploy to GitHub Pages](https://github.com/ad0m/TSAnalytics/actions/workflows/pages.yml/badge.svg)](https://github.com/ad0m/TSAnalytics/actions/workflows/pages.yml)
+
 A comprehensive React-based analytics dashboard for timesheet data analysis, built with Vite and modern web technologies.
 
 ## 🚀 Features
@@ -73,6 +75,30 @@ npm install
 # Start the development server
 npm run dev
 ```
+
+## Deploy (GitHub Pages)
+
+This repo auto-deploys a Vite build to GitHub Pages on every push to `main`.
+
+- Workflow file: `.github/workflows/pages.yml`
+- Public URL: `https://ad0m.github.io/TSAnalytics/`
+- Vite base path: set in `vite.config.js` as `base: '/TSAnalytics/'`
+- SPA fallback: `404.html` is a copy of `index.html` for client-side routes.
+
+### Commands
+```bash
+npm ci
+npm run dev     # local dev
+npm run build   # produce dist/ locally
+
+## Troubleshooting
+
+Assets 404 on Pages: confirm vite.config.js has base: '/TSAnalytics/'.
+
+Refresh 404 on deep routes: confirm workflow copies dist/index.html to dist/404.html.
+
+Action didn’t run: ensure workflow on: push: branches: [ main ] and you pushed to main.
+
 
 ### Usage
 1. **Upload CSV**: Use the file upload area to import your timesheet data
