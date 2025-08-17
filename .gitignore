@@ -1,0 +1,19 @@
+# Node / Vite / React
+node_modules/
+dist/
+.vite/
+.cache/
+*.local
+*.log
+*.log.*
+pnpm-lock.yaml
+yarn.lock
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Build outputs
+coverage/

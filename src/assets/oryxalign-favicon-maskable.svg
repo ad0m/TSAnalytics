@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64">
+  <title>OryxAlign Favicon – Maskable (PWA)</title>
+  <!-- Extra padding for safe maskable area -->
+  <rect width="64" height="64" rx="16" fill="#0B1220"/>
+  <circle cx="32" cy="32" r="15" fill="none" stroke="#FFFFFF" stroke-width="6"/>
+  <g fill="#38BDF8">
+    <path d="M32 17 L44.5 43 H39.3 L32 29.7 L24.7 43 H19.5 L32 17 Z"/>
+    <rect x="26.8" y="34.2" width="10.4" height="3.4" rx="1.7"/>
+  </g>
+</svg>

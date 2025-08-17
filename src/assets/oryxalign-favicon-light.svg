@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">
+  <title>OryxAlign Favicon – Light</title>
+  <!-- Background -->
+  <rect width="64" height="64" rx="12" fill="#FFFFFF"/>
+  <rect width="64" height="64" rx="12" fill="none" stroke="#E5E7EB" stroke-width="1"/>
+  <!-- "O" ring -->
+  <circle cx="32" cy="32" r="16" fill="none" stroke="#111827" stroke-width="6"/>
+  <!-- "A" glyph -->
+  <g fill="#0EA5E9">
+    <path d="M32 16 L45 44 H39.5 L32 29.5 L24.5 44 H19 L32 16 Z"/>
+    <rect x="26.5" y="34.5" width="11" height="3.5" rx="1.75"/>
+  </g>
+</svg>

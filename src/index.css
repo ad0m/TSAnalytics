@@ -1,0 +1,41 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white antialiased;
+}
+
+@layer utilities {
+  .oryx-card {
+    @apply rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/90 to-slate-900/90 shadow-2xl backdrop-blur-sm;
+  }
+  .oryx-heading {
+    @apply font-semibold text-white;
+  }
+  .oryx-accent {
+    @apply text-lime-400;
+  }
+  .oryx-primary {
+    @apply bg-gradient-to-r from-lime-500 to-lime-400 text-slate-900;
+  }
+  .oryx-secondary {
+    @apply bg-slate-700 text-white border border-slate-600;
+  }
+  .oryx-input {
+    @apply bg-slate-800 border-slate-600 text-white placeholder:text-slate-400 focus:border-lime-400 focus:ring-lime-400/20;
+  }
+  .oryx-nav {
+    @apply bg-gradient-to-r from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-lg;
+  }
+}
