@@ -29,10 +29,10 @@ export default function Overview({ filteredRows, onCompanyFilter }) {
 
       {/* Charts Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Role Utilization Chart */}
+        {/* Role Utilisation Chart */}
         <RoleUtilBullet filteredRows={filteredRows} />
         
-        {/* Department Utilization Trend */}
+        {/* Department Utilisation Trend */}
         <DeptUtilTrend filteredRows={filteredRows} />
       </div>
 

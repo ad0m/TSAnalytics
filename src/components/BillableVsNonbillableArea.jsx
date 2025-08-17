@@ -171,7 +171,7 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
         result.filter(r => r.period.includes('Jan') || r.period.includes('Dec')))
     }
     
-    // EMERGENCY OVERRIDE: Force specific test data to verify chart behavior
+    // EMERGENCY OVERRIDE: Force specific test data to verify chart behaviour
     const testMode = false // Set to true to test with hardcoded data
     
     if (testMode) {

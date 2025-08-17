@@ -33,7 +33,7 @@ export default function People({ filteredRows, onCompanyFilter, onReset }) {
         <CalendarHeatmap filteredRows={filteredRows} onReset={onReset} />
       </section>
 
-      {/* Role Utilization Trend - Full Width */}
+      {/* Role Utilisation Trend - Full Width */}
       <section>
         <RoleUtilTrend filteredRows={filteredRows} onReset={onReset} />
       </section>

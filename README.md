@@ -5,18 +5,18 @@ A comprehensive React-based analytics dashboard for timesheet data analysis, bui
 ## 🚀 Features
 
 ### 📊 **Key Performance Indicators (KPIs)**
-- **Department Utilization %**: Overall team productivity metrics
+- **Department Utilisation %**: Overall team productivity metrics
 - **Billable Hours**: Total revenue-generating time tracked
 - **Internal Hours Share %**: Internal vs client work breakdown
-- **Team-specific Utilization**: Cloud, Network, and PM team performance metrics
+- **Team-specific Utilisation**: Cloud, Network, and PM team performance metrics
 - Each KPI includes detailed calculation explanations for transparency
 
-### 📈 **Interactive Charts & Visualizations**
-- **Role Utilization Performance**: Bullet chart with team-specific color coding and target lines
-- **Department Utilization Trends**: Time-series analysis of team performance
+### 📈 **Interactive Charts & Visualisations**
+- **Role Utilisation Performance**: Bullet chart with team-specific colour coding and target lines
+- **Department Utilisation Trends**: Time-series analysis of team performance
 - **Billable vs Non-billable Hours**: Weekly aggregation with dynamic date filtering
 - **Top Companies by Billable Hours**: Client revenue analysis
-- **Client Pareto Analysis**: 80/20 rule visualization for client focus
+- **Client Pareto Analysis**: 80/20 rule visualisation for client focus
 
 ### 🔍 **Advanced Filtering**
 - **Period Filters**: Month, Quarter, Financial Year, or Custom date ranges
@@ -30,13 +30,13 @@ A comprehensive React-based analytics dashboard for timesheet data analysis, bui
 - **Dark Theme**: Professional dark palette throughout
 - **Responsive Design**: Works on desktop, tablet, and mobile
 - **Export Functionality**: PNG export for charts and reports
-- **Card-based Layout**: Clean, organized information hierarchy
+- **Card-based Layout**: Clean, organised information hierarchy
 - **Interactive Elements**: Clickable filters and drill-down capabilities
 
 ## 🛠️ **Technical Stack**
 
 - **Frontend**: React 18 with Vite for fast development
-- **Charts**: Recharts library for interactive visualizations
+- **Charts**: Recharts library for interactive visualisations
 - **Styling**: Tailwind CSS with custom Oryx theme
 - **Date Handling**: Day.js with UK date format support (DD/MM/YYYY)
 - **CSV Processing**: Papa Parse for timesheet data import
@@ -77,20 +77,20 @@ npm run dev
 ### Usage
 1. **Upload CSV**: Use the file upload area to import your timesheet data
 2. **Apply Filters**: Use the filter panel to focus on specific time periods, teams, or clients
-3. **Analyze Data**: Explore the various charts and KPIs across different tabs
+3. **Analyse Data**: Explore the various charts and KPIs across different tabs
 4. **Export Results**: Use the export functionality to save charts as PNG images
 
 ## 📊 **Dashboard Sections**
 
 ### Overview
 - Key Performance Indicators with detailed explanations
-- Role Utilization Performance with team-specific targets
+- Role Utilisation Performance with team-specific targets
 - Department trends and billable vs non-billable analysis
 
 ### People
 - Individual team member performance analysis
 - Role-based productivity metrics
-- Team utilization comparisons
+- Team utilisation comparisons
 
 ### Clients
 - Client revenue analysis and project breakdowns
@@ -128,7 +128,7 @@ The application is configured for UK date formats:
 ## 📈 **Performance Optimizations**
 
 - **Memoized Calculations**: Heavy computations cached with React.useMemo
-- **Efficient Filtering**: Optimized filter application for large datasets
+- **Efficient Filtering**: Optimised filter application for large datasets
 - **Lazy Loading**: Components load only when needed
 - **Responsive Charts**: Dynamic sizing based on container dimensions
 

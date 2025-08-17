@@ -6,7 +6,7 @@ export default function ProjectEfficiencyMatrix({ filteredRows }) {
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
-    // Group by Project Type and analyze efficiency metrics
+    // Group by Project Type and analyse efficiency metrics
     const projectTypeAnalysis = {}
     
     for (const row of filteredRows) {

@@ -320,7 +320,7 @@ export default function KpiTiles({ filteredRows, onReset }) {
       value: formatPercent(metrics.deptUtilPercent),
       icon: '📈',
       color: 'bg-blue-500/20 text-blue-400',
-      description: 'Department utilization percentage calculated as (Total Billable Hours ÷ Total Worked Hours) across all roles. Represents the proportion of logged time that was productive work.'
+      description: 'Department utilisation percentage calculated as (Total Billable Hours ÷ Total Worked Hours) across all roles. Represents the proportion of logged time that was productive work.'
     },
     {
       title: 'Billable Hours',
@@ -342,7 +342,7 @@ export default function KpiTiles({ filteredRows, onReset }) {
       subtitle: `vs ${formatPercent(ROLE_TARGETS.Cloud)} target`,
       icon: '☁️',
       color: 'bg-cyan-500/20 text-cyan-400',
-      description: 'Cloud team utilization rate. Shows productive hours as a percentage of total time logged by Cloud team members. Compares against target utilization goals.'
+      description: 'Cloud team utilisation rate. Shows productive hours as a percentage of total time logged by Cloud team members. Compares against target utilisation goals.'
     },
     {
       title: 'Network Util %',
@@ -350,7 +350,7 @@ export default function KpiTiles({ filteredRows, onReset }) {
       subtitle: `vs ${formatPercent(ROLE_TARGETS.Network)} target`,
       icon: '🌐',
       color: 'bg-purple-500/20 text-purple-400',
-      description: 'Network team utilization rate. Measures productive work efficiency for Network team members against established utilization targets.'
+      description: 'Network team utilisation rate. Measures productive work efficiency for Network team members against established utilisation targets.'
     },
     {
       title: 'PM Util %',
@@ -358,7 +358,7 @@ export default function KpiTiles({ filteredRows, onReset }) {
       subtitle: `vs ${formatPercent(ROLE_TARGETS.PM)} target`,
       icon: '📋',
       color: 'bg-orange-500/20 text-orange-400',
-      description: 'Project Management team utilization rate. Tracks productive hours for PM team members and compares performance against utilization targets.'
+      description: 'Project Management team utilisation rate. Tracks productive hours for PM team members and compares performance against utilisation targets.'
     }
   ]
   

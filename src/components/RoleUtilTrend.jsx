@@ -72,8 +72,8 @@ export default function RoleUtilTrend({ filteredRows }) {
           const contractHours = monthlyRoleContractHours[month]?.[role] || 0
           
           if (data && contractHours > 0) {
-            const utilization = (data.billableHours / contractHours) * 100
-            monthEntry[role] = Math.round(utilization * 10) / 10 // Round to 1 decimal
+            const utilisation = (data.billableHours / contractHours) * 100
+            monthEntry[role] = Math.round(utilisation * 10) / 10 // Round to 1 decimal
           } else {
             monthEntry[role] = 0
           }
@@ -108,9 +108,9 @@ export default function RoleUtilTrend({ filteredRows }) {
   if (!data || data.length === 0) {
     return (
       <div className="oryx-card p-8">
-        <h3 className="oryx-heading text-lg mb-4">Role Utilization Trend</h3>
+        <h3 className="oryx-heading text-lg mb-4">Role Utilisation Trend</h3>
         <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-          No role utilization data available
+          No role utilisation data available
         </div>
       </div>
     )
@@ -124,7 +124,7 @@ export default function RoleUtilTrend({ filteredRows }) {
   
   return (
     <div className="oryx-card p-6">
-      <h3 className="oryx-heading text-lg mb-4">Role Utilization Trend</h3>
+      <h3 className="oryx-heading text-lg mb-4">Role Utilisation Trend</h3>
       <div className="h-80">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart 
@@ -140,7 +140,7 @@ export default function RoleUtilTrend({ filteredRows }) {
               domain={[0, 100]}
               tick={{ fill: '#cbd5e1', fontSize: 12 }}
               label={{ 
-                value: 'Utilization %', 
+                value: 'Utilisation %', 
                 angle: -90, 
                 position: 'insideLeft', 
                 style: { fill: '#cbd5e1' } 
@@ -165,7 +165,7 @@ export default function RoleUtilTrend({ filteredRows }) {
               label={{ value: "PM 70%", position: "bottomRight", fill: "#a78bfa", fontSize: 10 }}
             />
             
-            {/* Role utilization lines */}
+            {/* Role utilisation lines */}
             {Object.entries(ROLE_TARGETS).map(([role, target]) => (
               <Line 
                 key={role}
@@ -182,8 +182,8 @@ export default function RoleUtilTrend({ filteredRows }) {
         </ResponsiveContainer>
       </div>
       <div className="mt-4 space-y-1 text-center text-xs text-slate-400">
-        <p>Shows monthly utilization percentage vs targets</p>
-        <p>Dashed lines indicate role-specific utilization targets</p>
+        <p>Shows monthly utilisation percentage vs targets</p>
+        <p>Dashed lines indicate role-specific utilisation targets</p>
       </div>
     </div>
   )

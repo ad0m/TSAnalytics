@@ -38,8 +38,8 @@ export function formatPercentage(percentage) {
 }
 
 /**
- * Color-blind friendly and high contrast color palette
- * Based on IBM Design Language colors optimized for dark backgrounds
+ * Colour-blind friendly and high contrast colour palette
+ * Based on IBM Design Language colours optimised for dark backgrounds
  */
 export const ACCESSIBLE_COLORS = [
   '#78a9ff', // Light blue - high contrast on dark
@@ -64,7 +64,7 @@ export function getAccessibleColor(index) {
 }
 
 /**
- * Contrast-optimized colors for specific chart types
+ * Contrast-optimised colours for specific chart types
  */
 export const CHART_COLORS = {
   primary: '#42be65',     // Green - primary actions
@@ -73,7 +73,7 @@ export const CHART_COLORS = {
   warning: '#fdd13a',     // Yellow - warnings
   danger: '#ff8389',      // Red - errors/critical
   info: '#82cfff',        // Cyan - information
-  neutral: '#a2a9b0',     // Gray - neutral data
+  neutral: '#a2a9b0',     // Grey - neutral data
 }
 
 /**
@@ -136,7 +136,7 @@ export function useDebounced(value, delay = 300) {
 }
 
 /**
- * Performance-optimized data grouping
+ * Performance-optimised data grouping
  * @param {Array} data 
  * @param {Function} keyFn 
  * @param {Function} valueFn 

@@ -26,11 +26,11 @@ function getWorkingDaysInMonth(calendarMonth) {
 }
 
 /**
- * Calculates role utilization data for bullet chart
+ * Calculates role utilisation data for bullet chart
  * @param {Array} rows - Filtered timesheet rows
- * @returns {Array} - Array of role utilization data
+ * @returns {Array} - Array of role utilisation data
  */
-function calculateRoleUtilization(rows) {
+function calculateRoleUtilisation(rows) {
   const roleData = {}
   
   // Initialize data for target roles
@@ -65,18 +65,18 @@ function calculateRoleUtilization(rows) {
     roleData[role].memberMonths.add(`${member}-${month}`)
   }
   
-  // Calculate utilization based on actual worked hours
+  // Calculate utilisation based on actual worked hours
   const result = []
   for (const role of targetRoles) {
     const data = roleData[role]
     
-    // Calculate utilization: Billable Hours / Total Worked Hours
-    const utilization = data.totalWorkedHours > 0 ? (data.billableHours / data.totalWorkedHours) * 100 : 0
+    // Calculate utilisation: Billable Hours / Total Worked Hours
+    const utilisation = data.totalWorkedHours > 0 ? (data.billableHours / data.totalWorkedHours) * 100 : 0
     const target = (ROLE_TARGETS[role] || 0) * 100
     
     result.push({
       role,
-      utilization: Math.round(utilization),
+      utilisation: Math.round(utilisation),
       target,
       billableHours: Math.round(data.billableHours * 4) / 4, // Round to 0.25
       totalWorkedHours: Math.round(data.totalWorkedHours * 4) / 4
@@ -88,7 +88,7 @@ function calculateRoleUtilization(rows) {
 
 export default function RoleUtilBullet({ filteredRows }) {
   const data = useMemo(() => {
-    return calculateRoleUtilization(filteredRows || [])
+    return calculateRoleUtilisation(filteredRows || [])
   }, [filteredRows])
   
   // Define distinct colors for each team
@@ -140,7 +140,7 @@ export default function RoleUtilBullet({ filteredRows }) {
             Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
           </p>
           <p className="text-xs text-slate-300">
-            Utilization: <span style={{ color: teamColor.primary }}>{data.utilization}%</span> 
+            Utilisation: <span style={{ color: teamColor.primary }}>{data.utilisation}%</span> 
             (Target: <span style={{ color: teamColor.target }}>{data.target}%</span>)
           </p>
         </div>
@@ -153,7 +153,7 @@ export default function RoleUtilBullet({ filteredRows }) {
     return (
       <div className="oryx-card p-8">
         <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-          No role utilization data for current filters
+          No role utilisation data for current filters
         </div>
       </div>
     )
@@ -161,7 +161,7 @@ export default function RoleUtilBullet({ filteredRows }) {
   
   return (
     <div className="oryx-card p-6">
-      <h3 className="oryx-heading text-lg mb-4 text-center">Role Utilization Performance</h3>
+      <h3 className="oryx-heading text-lg mb-4 text-center">Role Utilisation Performance</h3>
       <div className="h-80 w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
@@ -174,7 +174,7 @@ export default function RoleUtilBullet({ filteredRows }) {
               type="number" 
               domain={[0, 100]}
               tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ value: 'Utilization %', position: 'bottom', style: { fill: '#cbd5e1' } }}
+              label={{ value: 'Utilisation %', position: 'bottom', style: { fill: '#cbd5e1' } }}
             />
             <YAxis 
               dataKey="role" 
@@ -184,9 +184,9 @@ export default function RoleUtilBullet({ filteredRows }) {
             />
             <ReTooltip content={<CustomTooltip />} />
             
-            {/* Utilization bars with team-specific colors */}
+            {/* Utilisation bars with team-specific colors */}
             <Bar 
-              dataKey="utilization" 
+              dataKey="utilisation" 
               radius={[0, 4, 4, 0]}
             >
               {data.map((entry, index) => (
@@ -291,7 +291,7 @@ export default function RoleUtilBullet({ filteredRows }) {
         <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
           <div className="flex items-center gap-2">
             <div className="h-3 w-3 rounded bg-slate-500"></div>
-            <span>Actual Utilization</span>
+            <span>Actual Utilisation</span>
           </div>
         </div>
       </div>
