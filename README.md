@@ -28,7 +28,7 @@ A comprehensive React-based analytics dashboard for timesheet data analysis, bui
 
 ### 📱 **Modern UI/UX**
 - **Dark Theme**: Professional dark palette throughout
-- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Responsive Design**: Works on desktop, tablet
 - **Export Functionality**: PNG export for charts and reports
 - **Card-based Layout**: Clean, organised information hierarchy
 - **Interactive Elements**: Clickable filters and drill-down capabilities
