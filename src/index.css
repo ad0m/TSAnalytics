@@ -1,9 +1,23 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
-    Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  /* OryxAlign Brand Color Palette */
+  --color-brand-bg: #111C3A;
+  --color-brand-surface: #EFECD2;
+  --color-brand-text: #EFECD2;
+  --color-brand-muted: #586961;
+  --color-brand-primary: #B5C933;
+  --color-brand-secondary: #FF4F00;
+  --color-brand-border: #586961;
+  
+  /* Typography */
+  --font-sans: "Sofia Pro", Arial, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto,
+    Helvetica, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  
+  /* Extended Border Radius */
+  --radius-xl: 0.9rem;
+  --radius-2xl: 1.2rem;
 }
 
 html,
@@ -13,29 +27,105 @@ body,
 }
 
 body {
-  @apply bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white antialiased;
+  @apply bg-brand-bg text-brand-text antialiased;
+}
+
+/* CSS Variables for easy theme access */
+:root {
+  --bg: #111C3A;
+  --surface: #EFECD2;
+  --text: #EFECD2;
+  --muted: #586961;
+  --primary: #B5C933;
+  --secondary: #FF4F00;
+  --border: #586961;
+  --ring: #B5C933;
 }
 
 @layer utilities {
   .oryx-card {
-    @apply rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-800/90 to-slate-900/90 shadow-2xl backdrop-blur-sm;
+    @apply bg-brand-surface border border-brand-border/50;
+    color: #111C3A;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.25);
+  }
+  
+  /* Override slate text colors within cards for better contrast on light background */
+  .oryx-card .text-slate-300,
+  .oryx-card .text-slate-400 {
+    color: #111C3A !important; /* Dark Twilight Blue for contrast */
+  }
+  
+  .oryx-card .text-white {
+    color: #111C3A !important; /* Dark Twilight Blue instead of white on light background */
+  }
+  
+  /* Ensure chart text elements are visible - override SVG text styling */
+  .oryx-card svg text {
+    fill: #111C3A !important; /* Dark Twilight Blue for all SVG text */
+  }
+  
+  /* More specific for Recharts elements */
+  .oryx-card .recharts-text,
+  .oryx-card .recharts-label,
+  .oryx-card .recharts-cartesian-axis-tick-value {
+    fill: #111C3A !important;
   }
   .oryx-heading {
-    @apply font-semibold text-white;
+    @apply font-bold tracking-tight;
+    color: #111C3A;
   }
   .oryx-accent {
-    @apply text-lime-400;
+    @apply text-brand-secondary;
   }
   .oryx-primary {
-    @apply bg-gradient-to-r from-lime-500 to-lime-400 text-slate-900;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition
+           bg-brand-primary text-brand-bg hover:opacity-90 focus:outline-none;
+    box-shadow: 0 0 0 2px rgba(181, 201, 51, 0.4);
+    border-radius: 0;
   }
   .oryx-secondary {
-    @apply bg-slate-700 text-white border border-slate-600;
+    @apply inline-flex items-center justify-center px-4 py-2 font-medium transition
+           bg-transparent text-brand-text border border-brand-border/60 hover:border-brand-border
+           hover:bg-brand-surface/60 focus:outline-none;
+    border-radius: 0;
   }
   .oryx-input {
-    @apply bg-slate-800 border-slate-600 text-white placeholder:text-slate-400 focus:border-lime-400 focus:ring-lime-400/20;
+    @apply text-brand-text px-3 py-2 placeholder:text-brand-muted focus:outline-none;
+    background-color: #0c1325ba;
+    border: 0.7px solid #B5C933;
+    box-shadow: 0 0 0 2px rgba(181, 201, 51, 0.5);
   }
   .oryx-nav {
-    @apply bg-gradient-to-r from-slate-900/95 to-slate-800/95 border-slate-700/50 backdrop-blur-lg;
+    @apply bg-brand-bg/80 border-brand-border backdrop-blur-lg;
   }
+}
+
+/* Forms */
+input, select, textarea {
+  @apply text-brand-text px-3 py-2 placeholder:text-brand-muted focus:outline-none;
+  background-color: #0c1325ba;
+  border: 0.7px solid #B5C933;
+  box-shadow: 0 0 0 2px rgba(181, 201, 51, 0.5);
+}
+
+/* Links and subtle text */
+a { 
+  @apply text-brand-secondary hover:text-brand-primary transition; 
+}
+.muted { 
+  @apply text-brand-muted; 
+}
+
+/* Tables */
+.table {
+  @apply w-full text-sm;
+}
+.table thead th { 
+  @apply text-left text-brand-muted font-medium border-b border-brand-border; 
+}
+.table tbody tr { 
+  @apply border-b border-brand-border/40; 
+}
+.table tbody tr:hover { 
+  @apply bg-brand-surface/60; 
 }

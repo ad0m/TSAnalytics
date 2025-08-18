@@ -42,16 +42,16 @@ export function formatPercentage(percentage) {
  * Based on IBM Design Language colours optimised for dark backgrounds
  */
 export const ACCESSIBLE_COLORS = [
-  '#78a9ff', // Light blue - high contrast on dark
-  '#42be65', // Green - accessible 
-  '#ff7eb6', // Pink - distinct from blue/green
-  '#82cfff', // Cyan - good contrast
-  '#ffb3ba', // Light coral - warm contrast
-  '#ba4cff', // Purple - distinct hue
-  '#ff8389', // Red-pink - warning tone
-  '#08bdba', // Teal - cool contrast
-  '#fdd13a', // Yellow - high visibility (use sparingly)
-  '#6929c4', // Deep purple - good contrast
+  '#B5C933', // Lime Zest (primary)
+  '#FF4F00', // Vibrant Orange (secondary)  
+  '#EFECD2', // Stone (light)
+  '#C7D945', // Lighter lime variant
+  '#FF8A40', // Lighter orange variant
+  '#D4D1B8', // Muted stone variant
+  '#A3B82C', // Darker lime variant
+  '#FF6B1A', // Medium orange variant
+  '#586961', // Smokey Sage (muted)
+  '#FF3B00', // Darker orange variant
 ]
 
 /**
@@ -67,13 +67,13 @@ export function getAccessibleColor(index) {
  * Contrast-optimised colours for specific chart types
  */
 export const CHART_COLORS = {
-  primary: '#42be65',     // Green - primary actions
-  secondary: '#78a9ff',   // Blue - secondary data
-  accent: '#ff7eb6',      // Pink - highlights
-  warning: '#fdd13a',     // Yellow - warnings
-  danger: '#ff8389',      // Red - errors/critical
-  info: '#82cfff',        // Cyan - information
-  neutral: '#a2a9b0',     // Grey - neutral data
+  primary: '#B5C933',     // Lime Zest - primary actions
+  secondary: '#FF4F00',   // Vibrant Orange - secondary data
+  accent: '#EFECD2',      // Stone - highlights
+  warning: '#FF4F00',     // Orange - warnings
+  danger: '#FF4F00',      // Orange - errors/critical
+  info: '#B5C933',        // Lime - information
+  neutral: '#586961',     // Smokey Sage - neutral data
 }
 
 /**

@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Cell } from 'recharts'
+import { uiTheme } from '../theme'
 
 export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   const data = useMemo(() => {
@@ -49,25 +50,34 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
       const projects = data.projects || {}
       
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl min-w-48">
-          <p className="text-sm font-medium text-white mb-2">Company: {label}</p>
+        <div 
+          className="rounded-lg border p-3 shadow-2xl min-w-48"
+          style={{ 
+            backgroundColor: uiTheme.chart.tooltipBg, 
+            borderColor: uiTheme.chart.tooltipBorder,
+            color: uiTheme.chart.tooltipText 
+          }}
+        >
+          <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>
+            Company: {label}
+          </p>
           
           {/* Project breakdown */}
           {Object.entries(projects).map(([project, hours]) => (
-            <div key={project} className="flex justify-between items-center text-xs text-slate-300 mb-1">
-              <span className="truncate max-w-32">{project}:</span>
-              <span className="text-cyan-400 font-medium">{Math.round(hours * 4) / 4}h</span>
+            <div key={project} className="flex justify-between items-center text-xs mb-1">
+              <span className="truncate max-w-32" style={{ color: uiTheme.muted }}>{project}:</span>
+              <span className="font-medium" style={{ color: uiTheme.primary }}>{Math.round(hours * 4) / 4}h</span>
             </div>
           ))}
           
-          <div className="border-t border-slate-600 pt-2 mt-2">
+          <div className="pt-2 mt-2" style={{ borderTop: `1px solid ${uiTheme.border}` }}>
             <div className="flex justify-between items-center text-xs">
-              <span className="text-slate-300">Total Hours:</span>
-              <span className="text-white font-semibold">{payload[0].value}h</span>
+              <span style={{ color: uiTheme.muted }}>Total Hours:</span>
+              <span className="font-semibold" style={{ color: uiTheme.chart.tooltipText }}>{payload[0].value}h</span>
             </div>
           </div>
           
-          <p className="text-xs text-cyan-400 mt-2 text-center">
+          <p className="text-xs mt-2 text-center" style={{ color: uiTheme.primary }}>
             Click to filter by this company
           </p>
         </div>
@@ -86,7 +96,7 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
     return (
       <div className="oryx-card p-8">
         <h3 className="oryx-heading text-lg mb-4">Top 10 Companies by Billable Hours</h3>
-        <div className="flex h-48 items-center justify-center text-sm text-slate-400">
+        <div className="flex h-48 items-center justify-center text-sm" style={{ color: uiTheme.muted }}>
           No billable hours data available
         </div>
       </div>
@@ -105,22 +115,22 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
           >
             <defs>
               <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#22d3ee" stopOpacity={0.8}/>
-                <stop offset="100%" stopColor="#06b6d4" stopOpacity={1}/>
+                <stop offset="0%" stopColor={uiTheme.primary} stopOpacity={0.9}/>
+                <stop offset="100%" stopColor={uiTheme.primary} stopOpacity={0.7}/>
               </linearGradient>
             </defs>
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
               type="number" 
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ value: 'Billable Hours', position: 'bottom', style: { fill: '#cbd5e1' } }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
+              label={{ value: 'Billable Hours', position: 'bottom', style: { fill: uiTheme.chart.axis } }}
             />
             <YAxis 
               dataKey="company" 
               type="category" 
               width={120} 
               interval={0} 
-              tick={{ fill: '#cbd5e1', fontSize: 11 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 11 }}
             />
             <ReTooltip content={<CustomTooltip />} />
             <Bar 

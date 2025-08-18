@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, ReferenceLine, Cell } from 'recharts'
 import dayjs from 'dayjs'
 import { ROLE_TARGETS, DAY_HOURS } from '../lib/invariants.js'
+import { uiTheme } from '../theme'
 
 /**
  * Calculates working days in a month (excludes weekends)
@@ -169,18 +170,18 @@ export default function RoleUtilBullet({ filteredRows }) {
             layout="vertical"
             margin={{ left: 60, right: 60, top: 40, bottom: 20 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
               type="number" 
               domain={[0, 100]}
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ value: 'Utilisation %', position: 'bottom', style: { fill: '#cbd5e1' } }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
+              label={{ value: 'Utilisation %', position: 'bottom', style: { fill: uiTheme.chart.axis } }}
             />
             <YAxis 
               dataKey="role" 
               type="category" 
               width={50}
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
             />
             <ReTooltip content={<CustomTooltip />} />
             

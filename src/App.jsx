@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
 import isoWeek from 'dayjs/plugin/isoWeek'
+import oaneonLogo from './assets/oaneon.png'
 import { parseCsvToRows } from './lib/parseTimesheets.js'
 import { FILTER_DEFAULTS, PERIOD_OPTIONS, PRODUCTIVITY_OPTIONS } from './lib/filterDefaults.js'
 import { applyFilters, getDistinctValues, getLatestCompleteMonth, derivePeriodDefaults } from './lib/applyFilters.js'
@@ -41,33 +42,38 @@ function Header({ onUpload, onClear, hasData }) {
     <header className="sticky top-0 z-40 oryx-nav border-b">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-lime-500 to-lime-400">
-            <span className="text-lg font-bold text-slate-900">O</span>
+          <div className="flex h-10 w-10 items-center justify-center">
+            <img 
+              src={oaneonLogo} 
+              alt="Oaneon Logo" 
+              className="h-8 w-8"
+            />
           </div>
           <h1 className="oryx-heading text-lg sm:text-xl">
-            <span className="oryx-accent">OryxAlign</span> <span className="text-slate-400">|</span> Time Analytics
+            <span style={{ color: '#B5C933' }}>Professional Services</span> <span style={{ color: '#EFECD2' }}>| Time Analytics</span>
           </h1>
         </div>
         <div className="flex items-center gap-3">
           <div 
-            className="hidden sm:flex items-center gap-2 text-xs text-slate-400 bg-slate-700/50 px-3 py-1.5 rounded-full cursor-help relative group"
+            className="hidden sm:flex items-center gap-2 text-xs bg-brand-surface/50 px-3 py-1.5 rounded-full cursor-help relative group"
             title=""
+            style={{ color: '#111C3A' }}
           >
-            <span className="text-blue-400">🔒</span>
+            <span className="text-brand-secondary">🔒</span>
             <span>Local processing only</span>
             
             {/* Tooltip */}
-            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-slate-800 text-slate-200 text-xs rounded-lg shadow-xl border border-slate-600 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 w-64">
+            <div className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 px-3 py-2 bg-brand-surface text-brand-text text-xs rounded-lg shadow-xl border border-brand-border opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none z-50 w-64">
               <div className="text-center">
                 <p className="font-medium mb-1">Your data stays on your device</p>
-                <p className="text-slate-300 leading-relaxed">
+                <p className="text-brand-muted leading-relaxed">
                   CSV files are processed entirely in your web browser using JavaScript. 
                   No data is uploaded to servers or stored externally. 
                   Your timesheet information remains completely private and secure.
                 </p>
               </div>
               {/* Tooltip arrow */}
-              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-slate-800"></div>
+              <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-brand-surface"></div>
             </div>
           </div>
           <input
@@ -635,9 +641,9 @@ export default function App() {
           </section>
 
           {/* Tabs */}
-          <div className="mt-8 flex items-center gap-3 overflow-x-auto">
+          <div className="mt-8 grid grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2">
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'overview' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -645,7 +651,7 @@ export default function App() {
               onClick={() => setTab('overview')}
             >🏠 Overview</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'people' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -653,7 +659,7 @@ export default function App() {
               onClick={() => setTab('people')}
             >📊 People-Focused</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'clients' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -661,7 +667,7 @@ export default function App() {
               onClick={() => setTab('clients')}
             >🏢 Client-Focused</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'projects' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -669,7 +675,7 @@ export default function App() {
               onClick={() => setTab('projects')}
             >🎯 Projects</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'usage' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -677,7 +683,7 @@ export default function App() {
               onClick={() => setTab('usage')}
             >⏱️ Time Usage</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'trends' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'
@@ -685,7 +691,7 @@ export default function App() {
               onClick={() => setTab('trends')}
             >📈 Trends & Insights</button>
             <button
-              className={`h-10 rounded-lg px-4 text-sm font-medium transition-all ${
+              className={`h-16 px-3 text-sm font-medium transition-all ${
                 tab === 'governance' 
                   ? 'oryx-primary shadow-lg' 
                   : 'oryx-secondary hover:bg-slate-600'

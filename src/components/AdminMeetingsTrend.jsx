@@ -2,6 +2,7 @@ import { useMemo, useRef } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer } from 'recharts'
 import { toBlob } from 'html-to-image'
 import { Download } from 'lucide-react'
+import { uiTheme } from '../theme'
 
 export default function AdminMeetingsTrend({ filteredRows }) {
   const ref = useRef(null)
@@ -17,7 +18,7 @@ export default function AdminMeetingsTrend({ filteredRows }) {
       
       for (const row of filteredRows) {
         const month = row.calendarMonth
-        const workType = row.boardWorkType
+        const workType = row['Work Type'] // Use original Work Type instead of board category
         const hours = row.Hours || 0
         
         // Skip rows without required fields
@@ -28,14 +29,26 @@ export default function AdminMeetingsTrend({ filteredRows }) {
       
       if (!monthlyData[month]) {
         monthlyData[month] = {
+          adminMeetingHours: 0,
           adminHours: 0,
+          trainingHours: 0,
+          bankHolidayLeaveHours: 0,
+          sickLeaveHours: 0,
           totalHours: 0
         }
       }
       
-      // Admin hours: Internal Admin + Internal Support
-      if (workType === 'Internal Admin' || workType === 'Internal Support') {
+      // Track specific work types
+      if (workType === 'Admin - Internal Meeting') {
+        monthlyData[month].adminMeetingHours += hours
+      } else if (workType === 'Admin') {
         monthlyData[month].adminHours += hours
+      } else if (workType === 'Training') {
+        monthlyData[month].trainingHours += hours
+      } else if (workType === 'Bank/Holiday Leave') {
+        monthlyData[month].bankHolidayLeaveHours += hours
+      } else if (workType === 'Sick Leave' || workType === 'Sick') {
+        monthlyData[month].sickLeaveHours += hours
       }
       
       monthlyData[month].totalHours += hours
@@ -44,11 +57,16 @@ export default function AdminMeetingsTrend({ filteredRows }) {
     // Convert to chart data
     const chartData = Object.entries(monthlyData)
       .map(([month, data]) => {
-        const adminPercentage = data.totalHours > 0 ? (data.adminHours / data.totalHours) * 100 : 0
+        const totalAdminHours = data.adminMeetingHours + data.adminHours + data.trainingHours + data.bankHolidayLeaveHours + data.sickLeaveHours
+        const adminPercentage = data.totalHours > 0 ? (totalAdminHours / data.totalHours) * 100 : 0
         
         return {
           month,
+          adminMeetingHours: Math.round(data.adminMeetingHours * 4) / 4,
           adminHours: Math.round(data.adminHours * 4) / 4,
+          trainingHours: Math.round(data.trainingHours * 4) / 4,
+          bankHolidayLeaveHours: Math.round(data.bankHolidayLeaveHours * 4) / 4,
+          sickLeaveHours: Math.round(data.sickLeaveHours * 4) / 4,
           totalHours: Math.round(data.totalHours * 4) / 4,
           adminPercentage: Math.round(adminPercentage * 10) / 10
         }
@@ -67,15 +85,35 @@ export default function AdminMeetingsTrend({ filteredRows }) {
     if (active && payload && payload.length) {
       const data = payload[0]?.payload
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
-          <p className="text-xs text-slate-300 mb-1">
-            Admin Hours: {data?.adminHours}h
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: uiTheme.chart.tooltipBg, 
+            borderColor: uiTheme.chart.tooltipBorder 
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: uiTheme.chart.tooltipText }}>
+            {label}
           </p>
-          <p className="text-xs text-slate-300 mb-1">
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
+            Admin - Internal Meeting: {data?.adminMeetingHours}h
+          </p>
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
+            Admin: {data?.adminHours}h
+          </p>
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
+            Training: {data?.trainingHours}h
+          </p>
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
+            Bank/Holiday Leave: {data?.bankHolidayLeaveHours}h
+          </p>
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
+            Sick Leave: {data?.sickLeaveHours}h
+          </p>
+          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
             Total Hours: {data?.totalHours}h
           </p>
-          <p className="text-xs text-lime-400">
+          <p className="text-xs" style={{ color: uiTheme.secondary }}>
             Admin Share: {data?.adminPercentage}%
           </p>
         </div>
@@ -110,7 +148,7 @@ export default function AdminMeetingsTrend({ filteredRows }) {
             <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
               <span className="text-lime-400">📊</span>
             </span>
-            Admin & Meetings Trend
+            Internal Admin & Meetings
           </h3>
           <button 
             onClick={exportPng}
@@ -119,7 +157,7 @@ export default function AdminMeetingsTrend({ filteredRows }) {
             <Download size={16} /> Export PNG
           </button>
         </div>
-        <div className="flex h-80 items-center justify-center text-sm text-slate-400">
+        <div className="flex h-96 items-center justify-center text-sm" style={{ color: uiTheme.muted }}>
           No admin/meetings data available
         </div>
       </div>
@@ -133,7 +171,7 @@ export default function AdminMeetingsTrend({ filteredRows }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
             <span className="text-lime-400">📊</span>
           </span>
-          Admin & Meetings Trend
+          Internal Admin & Meetings
         </h3>
         <button 
           onClick={exportPng}
@@ -142,38 +180,38 @@ export default function AdminMeetingsTrend({ filteredRows }) {
           <Download size={16} /> Export PNG
         </button>
       </div>
-      <div className="h-80 rounded-lg bg-slate-900/30 p-3">
+      <div className="h-96 rounded-lg bg-slate-900/30 p-3">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart 
             data={data} 
             margin={{ left: 8, right: 16, top: 8, bottom: 24 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
               dataKey="month" 
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
             />
             <YAxis 
               yAxisId="hours"
               orientation="left"
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
               label={{ 
                 value: 'Admin Hours', 
                 angle: -90, 
                 position: 'insideLeft', 
-                style: { fill: '#cbd5e1' } 
+                style: { fill: uiTheme.chart.axis } 
               }}
             />
             <YAxis 
               yAxisId="percentage"
               orientation="right"
               domain={[0, 100]}
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
               label={{ 
                 value: 'Admin Share %', 
                 angle: 90, 
                 position: 'insideRight', 
-                style: { fill: '#cbd5e1' } 
+                style: { fill: uiTheme.chart.axis } 
               }}
             />
             <ReTooltip content={<CustomTooltip />} />
@@ -181,25 +219,52 @@ export default function AdminMeetingsTrend({ filteredRows }) {
             
             <Bar 
               yAxisId="hours"
+              dataKey="adminMeetingHours" 
+              name="Admin - Internal Meeting"
+              fill="#012A2D"
+            />
+            <Bar 
+              yAxisId="hours"
               dataKey="adminHours" 
-              name="Admin Hours"
-              fill="#fbbf24"
+              name="Admin"
+              fill="#B5C933"
+            />
+            <Bar 
+              yAxisId="hours"
+              dataKey="trainingHours" 
+              name="Training"
+              fill="#EFECD2"
+            />
+            <Bar 
+              yAxisId="hours"
+              dataKey="bankHolidayLeaveHours" 
+              name="Bank/Holiday Leave"
+              fill="#586961"
+            />
+            <Bar 
+              yAxisId="hours"
+              dataKey="sickLeaveHours" 
+              name="Sick Leave"
+              fill="#8B9DC3"
             />
             <Line 
               yAxisId="percentage"
               type="monotone" 
               dataKey="adminPercentage" 
               name="Admin Share %"
-              stroke="#ef4444" 
+              stroke="#FF4F00" 
               strokeWidth={3}
-              dot={{ r: 4, fill: '#ef4444' }}
+              dot={{ r: 4, fill: '#FF4F00' }}
               activeDot={{ r: 6 }}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-4 text-center text-xs text-slate-400">
-        Shows Internal Admin + Internal Support hours and their percentage of total monthly hours
+        <p className="mb-1">Compares Admin - Internal Meeting, Admin, Training, Bank/Holiday Leave, and Sick Leave hours with their combined percentage of total monthly hours</p>
+        <p className="text-xs text-slate-500">
+          Admin Share % = What portion of total work time is spent on non-productive activities vs. productive work
+        </p>
       </div>
     </div>
   )

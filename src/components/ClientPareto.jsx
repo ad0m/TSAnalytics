@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, ReferenceLine } from 'recharts'
+import { uiTheme } from '../theme'
 
 export default function ClientPareto({ filteredRows }) {
   const data = useMemo(() => {
@@ -51,15 +52,24 @@ export default function ClientPareto({ filteredRows }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{data.company}</p>
-          <p className="text-xs text-slate-300">
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: uiTheme.chart.tooltipBg, 
+            borderColor: uiTheme.chart.tooltipBorder,
+            color: uiTheme.chart.tooltipText 
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: uiTheme.chart.tooltipText }}>
+            {data.company}
+          </p>
+          <p className="text-xs" style={{ color: uiTheme.muted }}>
             Billable Hours: {data.hours}h
           </p>
-          <p className="text-xs text-slate-300">
+          <p className="text-xs" style={{ color: uiTheme.muted }}>
             Cumulative: {data.cumulativePercent}%
           </p>
-          <p className="text-xs text-slate-300">
+          <p className="text-xs" style={{ color: uiTheme.muted }}>
             Rank: #{data.rank}
           </p>
         </div>
@@ -75,7 +85,7 @@ export default function ClientPareto({ filteredRows }) {
     return (
       <div className="oryx-card p-8">
         <h3 className="oryx-heading text-lg mb-4">Client Pareto Analysis</h3>
-        <div className="flex h-48 items-center justify-center text-sm text-slate-400">
+        <div className="flex h-48 items-center justify-center text-sm" style={{ color: uiTheme.muted }}>
           No billable hours data available
         </div>
       </div>
@@ -91,27 +101,27 @@ export default function ClientPareto({ filteredRows }) {
             data={data} 
             margin={{ left: 8, right: 40, top: 8, bottom: 80 }}
           >
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
               dataKey="displayName"
               angle={-45}
               textAnchor="end"
               height={80}
               interval={0}
-              tick={{ fill: '#cbd5e1', fontSize: 10 }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 10 }}
             />
             <YAxis 
               yAxisId="hours"
               orientation="left"
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ value: 'Billable Hours', angle: -90, position: 'insideLeft', style: { fill: '#cbd5e1' } }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
+              label={{ value: 'Billable Hours', angle: -90, position: 'insideLeft', style: { fill: uiTheme.chart.axis } }}
             />
             <YAxis 
               yAxisId="percent"
               orientation="right"
               domain={[0, 100]}
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ value: 'Cumulative %', angle: 90, position: 'insideRight', style: { fill: '#cbd5e1' } }}
+              tick={{ fill: uiTheme.chart.axis, fontSize: 12 }}
+              label={{ value: 'Cumulative %', angle: 90, position: 'insideRight', style: { fill: uiTheme.chart.axis } }}
             />
             <ReTooltip content={<CustomTooltip />} />
             
@@ -119,7 +129,7 @@ export default function ClientPareto({ filteredRows }) {
             <ReferenceLine 
               yAxisId="percent"
               y={80} 
-              stroke="#fbbf24" 
+              stroke={uiTheme.muted} 
               strokeWidth={2}
               strokeDasharray="4 4"
             />
@@ -128,7 +138,7 @@ export default function ClientPareto({ filteredRows }) {
             <Bar 
               yAxisId="hours"
               dataKey="hours" 
-              fill="#22d3ee"
+              fill={uiTheme.primary}
               opacity={0.8}
             />
             
@@ -137,31 +147,36 @@ export default function ClientPareto({ filteredRows }) {
               yAxisId="percent"
               type="monotone" 
               dataKey="cumulativePercent" 
-              stroke="#ef4444" 
+              stroke={uiTheme.secondary} 
               strokeWidth={3}
-              dot={{ r: 3, fill: '#ef4444' }}
-              activeDot={{ r: 5, fill: '#ef4444' }}
+              dot={{ r: 3, fill: uiTheme.secondary }}
+              activeDot={{ r: 5, fill: uiTheme.secondary }}
             />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-4 space-y-2">
-        <div className="flex items-center justify-center gap-6 text-xs text-slate-400">
+        <div className="flex items-center justify-center gap-6 text-xs" style={{ color: uiTheme.muted }}>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded bg-cyan-400"></div>
+            <div className="h-3 w-3 rounded" style={{ backgroundColor: uiTheme.primary }}></div>
             <span>Billable Hours</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-red-400 rounded"></div>
+            <div className="h-1 w-6 rounded" style={{ backgroundColor: uiTheme.secondary }}></div>
             <span>Cumulative %</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-yellow-400 rounded" style={{ background: 'repeating-linear-gradient(to right, #fbbf24 0, #fbbf24 3px, transparent 3px, transparent 6px)' }}></div>
+            <div 
+              className="h-1 w-6 rounded" 
+              style={{ 
+                background: `repeating-linear-gradient(to right, ${uiTheme.muted} 0, ${uiTheme.muted} 3px, transparent 3px, transparent 6px)` 
+              }}
+            ></div>
             <span>80% Line</span>
           </div>
         </div>
         {eightyPercentIndex >= 0 && (
-          <div className="text-center text-xs text-yellow-400">
+          <div className="text-center text-xs" style={{ color: uiTheme.muted }}>
             80% of billable hours come from the first {eightyPercentIndex + 1} companies
           </div>
         )}
