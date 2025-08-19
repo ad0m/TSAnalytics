@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import dayjs from 'dayjs'
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts'
 import { ROLE_TARGETS, DAY_HOURS } from '../lib/invariants.js'
 import { roundToQuarter, EmptyState } from '../lib/utils.jsx'
 
@@ -319,77 +320,263 @@ export default function KpiTiles({ filteredRows, onReset }) {
       title: 'Dept Util %',
       value: formatPercent(metrics.deptUtilPercent),
       icon: '📈',
-      color: 'bg-blue-500/20 text-blue-400',
-      description: 'Department utilisation percentage calculated as (Total Billable Hours ÷ Total Worked Hours) across all roles. Represents the proportion of logged time that was productive work.'
+      color: 'from-blue-500/20 to-blue-600/20',
+      iconColor: 'text-blue-400',
+      chartColor: '#60a5fa',
+      bgColor: 'bg-blue-500/10',
+      description: 'Percentage of productive vs total work time across all roles'
     },
     {
       title: 'Billable Hours',
       value: roundToQuarter(metrics.billableHours).toFixed(2),
       icon: '💼',
-      color: 'bg-green-500/20 text-green-400',
-      description: 'Total hours logged as billable work. These are hours that can be charged to clients or projects, representing revenue-generating activities.'
+      color: 'from-green-500/20 to-green-600/20',
+      iconColor: 'text-green-400',
+      chartColor: '#4ade80',
+      bgColor: 'bg-green-500/10',
+      description: 'Total hours that can be charged to clients'
     },
     {
       title: 'Internal Hours Share %',
       value: formatPercent(metrics.internalHoursSharePercent),
       icon: '🏢',
-      color: 'bg-yellow-500/20 text-yellow-400',
-      description: 'Percentage of total hours spent on internal company work (non-client projects). Calculated as (Internal Hours ÷ Total Hours).'
+      color: 'from-yellow-500/20 to-yellow-600/20',
+      iconColor: 'text-yellow-400',
+      chartColor: '#facc15',
+      bgColor: 'bg-yellow-500/10',
+      description: 'Time spent on internal company work'
     },
     {
       title: 'Cloud Util %',
       value: formatPercent(metrics.cloudUtilPercent),
       subtitle: `vs ${formatPercent(ROLE_TARGETS.Cloud)} target`,
       icon: '☁️',
-      color: 'bg-cyan-500/20 text-cyan-400',
-      description: 'Cloud team utilisation rate. Shows productive hours as a percentage of total time logged by Cloud team members. Compares against target utilisation goals.'
+      color: 'from-cyan-500/20 to-cyan-600/20',
+      iconColor: 'text-cyan-400',
+      chartColor: '#22d3ee',
+      bgColor: 'bg-cyan-500/10',
+      description: 'Cloud team productive work efficiency'
     },
     {
       title: 'Network Util %',
       value: formatPercent(metrics.networkUtilPercent),
       subtitle: `vs ${formatPercent(ROLE_TARGETS.Network)} target`,
       icon: '🌐',
-      color: 'bg-purple-500/20 text-purple-400',
-      description: 'Network team utilisation rate. Measures productive work efficiency for Network team members against established utilisation targets.'
+      color: 'from-purple-500/20 to-purple-600/20',
+      iconColor: 'text-purple-400',
+      chartColor: '#a78bfa',
+      bgColor: 'bg-purple-500/10',
+      description: 'Network team productive work efficiency'
     },
     {
       title: 'PM Util %',
       value: formatPercent(metrics.pmUtilPercent),
       subtitle: `vs ${formatPercent(ROLE_TARGETS.PM)} target`,
       icon: '📋',
-      color: 'bg-orange-500/20 text-orange-400',
-      description: 'Project Management team utilisation rate. Tracks productive hours for PM team members and compares performance against utilisation targets.'
+      color: 'from-orange-500/20 to-orange-600/20',
+      iconColor: 'text-orange-400',
+      chartColor: '#fb923c',
+      bgColor: 'bg-orange-500/10',
+      description: 'PM team productive work efficiency'
     }
   ]
-  
+
+  // Helper function to get status colors
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'good': return 'text-emerald-400'
+      case 'warning': return 'text-amber-400'
+      case 'critical': return 'text-red-400'
+      default: return 'text-slate-400'
+    }
+  }
+
+  // Helper function to get weekly data for trend charts
+  const getWeeklyData = (title, rows) => {
+    if (!rows?.length) return []
+    
+    // Group data by week
+    const weeklyData = {}
+    
+    rows.forEach(row => {
+      const date = dayjs(row.Date, 'DD/MM/YYYY')
+      if (!date.isValid()) return
+      
+      // Get week start (Monday)
+      const weekStart = date.startOf('week').format('YYYY-MM-DD')
+      
+      if (!weeklyData[weekStart]) {
+        weeklyData[weekStart] = {
+          week: weekStart,
+          deptUtil: 0,
+          billableHours: 0,
+          internalHours: 0,
+          cloudUtil: 0,
+          networkUtil: 0,
+          pmUtil: 0,
+          totalWorkedHours: 0,
+          totalBillableHours: 0
+        }
+      }
+      
+      // Add hours based on KPI type
+      if (title === 'Dept Util %') {
+        const productivity = (row.Productivity || '').trim()
+        if (productivity === "Productive") {
+          weeklyData[weekStart].totalBillableHours += row.Hours
+        }
+        weeklyData[weekStart].totalWorkedHours += row.Hours
+      } else if (title === 'Billable Hours') {
+        if (row.isBillable) {
+          weeklyData[weekStart].billableHours += row.Hours
+        }
+      } else if (title === 'Internal Hours Share %') {
+        if (row.isInternal) {
+          weeklyData[weekStart].internalHours += row.Hours
+        }
+        weeklyData[weekStart].totalWorkedHours += row.Hours
+      } else if (title.includes('Util %')) {
+        const productivity = (row.Productivity || '').trim()
+        if (productivity === "Productive") {
+          weeklyData[weekStart].totalBillableHours += row.Hours
+        }
+        weeklyData[weekStart].totalWorkedHours += row.Hours
+      }
+    })
+    
+    // Calculate percentages and format data
+    const chartData = Object.values(weeklyData)
+      .map(week => {
+        let value = 0
+        
+        if (title === 'Dept Util %') {
+          value = week.totalWorkedHours > 0 ? (week.totalBillableHours / week.totalWorkedHours) * 100 : 0
+        } else if (title === 'Billable Hours') {
+          value = week.billableHours
+        } else if (title === 'Internal Hours Share %') {
+          value = week.totalWorkedHours > 0 ? (week.internalHours / week.totalWorkedHours) * 100 : 0
+        } else if (title.includes('Util %')) {
+          value = week.totalWorkedHours > 0 ? (week.totalBillableHours / week.totalWorkedHours) * 100 : 0
+        }
+        
+        return {
+          week: dayjs(week.week).format('MMM DD'),
+          value: Math.round(value * 100) / 100
+        }
+      })
+      .sort((a, b) => dayjs(a.week, 'MMM DD').diff(dayjs(b.week, 'MMM DD')))
+      .slice(-8) // Last 8 weeks
+    
+    return chartData
+  }
+
+  // Mini trend chart component
+  const MiniTrendChart = ({ data, color, title }) => {
+    if (!data || data.length < 2) {
+      return (
+        <div className="h-[60px] w-[120px] bg-slate-700/30 rounded flex items-center justify-center">
+          <span className="text-xs text-slate-400">No trend data</span>
+        </div>
+      )
+    }
+    
+    return (
+      <div className="h-[60px] w-[120px]">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
+            <XAxis 
+              dataKey="week" 
+              hide={true}
+            />
+            <YAxis 
+              hide={true}
+            />
+            <Tooltip
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  return (
+                    <div className="bg-slate-800 border border-slate-600 rounded-lg p-2 text-xs">
+                      <p className="font-medium text-white">{label}</p>
+                      <p className="text-slate-300">
+                        {title.includes('%') ? `${payload[0].value}%` : `${payload[0].value}h`}
+                      </p>
+                    </div>
+                  )
+                }
+                return null
+              }}
+            />
+            <Line
+              type="monotone"
+              dataKey="value"
+              stroke={color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 3, fill: color }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    )
+  }
+
   if (!filteredRows?.length) {
     return <EmptyState title="No data for KPIs" onReset={onReset} />
   }
-  
+
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       {tiles.map((tile, index) => (
-        <div key={index} className="oryx-card p-6">
-          <div className="flex items-start gap-4">
-            {/* Left side - KPI info */}
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <div className={`flex h-10 w-10 items-center justify-center rounded-lg ${tile.color}`}>
-                  <span className="text-lg">{tile.icon}</span>
-                </div>
-                <h3 className="text-sm font-medium text-slate-300">{tile.title}</h3>
+        <div 
+          key={index} 
+          className="oryx-card p-6 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer group relative"
+        >
+          {/* Header with enhanced icon and title */}
+          <div className="flex items-start justify-between mb-4">
+            <div className="flex items-center gap-4">
+              <div className={`relative flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br ${tile.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
+                <span className="text-2xl">{tile.icon}</span>
+                {/* Subtle glow effect */}
+                <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${tile.color} opacity-0 group-hover:opacity-30 transition-opacity duration-300`}></div>
               </div>
-              <div className="text-2xl font-semibold text-white mb-1">{tile.value}</div>
-              {tile.subtitle && (
-                <div className="text-xs text-slate-400">{tile.subtitle}</div>
-              )}
+              <div className="flex-1">
+                <h3 className="text-base font-semibold text-slate-300 mb-1 group-hover:text-white transition-colors duration-200">
+                  {tile.title}
+                </h3>
+                {tile.subtitle && (
+                  <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors duration-200">
+                    {tile.subtitle}
+                  </div>
+                )}
+              </div>
             </div>
             
-            {/* Right side - Description */}
-            <div className="flex-1">
-              <p className="text-xs text-slate-400 leading-relaxed">{tile.description}</p>
+            {/* Mini weekly trend line chart - moved to right side */}
+            <div className="flex-shrink-0">
+              <MiniTrendChart 
+                data={getWeeklyData(tile.title, filteredRows)}
+                color={tile.chartColor}
+                title={tile.title}
+              />
             </div>
           </div>
+
+          {/* Main value with enhanced typography */}
+          <div className="mb-4">
+            <div className="text-3xl font-bold text-white mb-2 group-hover:text-lime-400 transition-colors duration-200">
+              {tile.value}
+            </div>
+          </div>
+
+          {/* Enhanced description */}
+          <div className="border-t border-slate-600/50 pt-4">
+            <p className="text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-200">
+              {tile.description}
+            </p>
+          </div>
+
+          {/* Hover effect overlay */}
+          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-transparent to-slate-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
         </div>
       ))}
     </div>

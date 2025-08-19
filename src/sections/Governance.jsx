@@ -18,36 +18,18 @@ export default function Governance({ filteredRows }) {
     
     return (
       <div className="space-y-6">
-        {/* TEST: AdminMeetingsTrend + LatePostingImpact */}
+        {/* AdminMeetingsTrend */}
         <section>
-          <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-              <span className="text-lime-400">📋</span>
-            </span>
-            Administrative & Compliance Analysis (Testing)
-          </h2>
           <AdminMeetingsTrend filteredRows={filteredRows} />
         </section>
 
-        {/* TEST: Rewritten LatePostingImpact */}
+        {/* LatePostingImpact */}
         <section>
-          <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-              <span className="text-lime-400">📊</span>
-            </span>
-            Late Posting Impact (Rewritten - Testing)
-          </h2>
           <LatePostingImpact filteredRows={filteredRows} />
         </section>
 
-        {/* TEST: Adding OvertimeIncidence */}
+        {/* OvertimeIncidence */}
         <section>
-          <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-              <span className="text-lime-400">⏱️</span>
-            </span>
-            Overtime Incidence (Testing)
-          </h2>
           <OvertimeIncidence filteredRows={filteredRows} />
         </section>
 

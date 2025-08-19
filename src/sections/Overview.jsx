@@ -14,7 +14,7 @@ export default function Overview({ filteredRows, onCompanyFilter }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
             <span className="text-lime-400">📊</span>
           </span>
-          Key Performance Indicators
+          <span style={{ color: '#EFECD2' }}>Key Performance Indicators</span>
         </h2>
         <KpiTiles filteredRows={filteredRows} />
       </section>

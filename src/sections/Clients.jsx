@@ -13,7 +13,7 @@ export default function Clients({ filteredRows, onCompanyFilter }) {
           <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
             <span className="text-lime-400">📈</span>
           </span>
-          Top 5 Clients Trends
+          <span style={{ color: '#EFECD2' }}>Top 5 Clients Trends</span>
         </h2>
         <Top5ClientsTrend filteredRows={filteredRows} onCompanyFilter={onCompanyFilter} />
       </section>

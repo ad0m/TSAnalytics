@@ -129,18 +129,24 @@ export default function RoleUtilBullet({ filteredRows }) {
       const data = payload[0].payload
       const teamColor = teamColors[data.role]
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#EFECD2',
+            borderColor: '#586961'
+          }}
+        >
           <div className="flex items-center gap-2 mb-2">
             <div 
               className="h-3 w-3 rounded-full" 
               style={{ backgroundColor: teamColor.primary }}
             ></div>
-            <p className="text-sm font-medium text-white">{data.role} Team</p>
+            <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{data.role} Team</p>
           </div>
-          <p className="text-xs text-slate-300">
+          <p className="text-xs" style={{ color: '#586961' }}>
             Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
           </p>
-          <p className="text-xs text-slate-300">
+          <p className="text-xs" style={{ color: '#586961' }}>
             Utilisation: <span style={{ color: teamColor.primary }}>{data.utilisation}%</span> 
             (Target: <span style={{ color: teamColor.target }}>{data.target}%</span>)
           </p>
@@ -162,13 +168,13 @@ export default function RoleUtilBullet({ filteredRows }) {
   
   return (
     <div className="oryx-card p-6">
-      <h3 className="oryx-heading text-lg mb-4 text-center">Role Utilisation Performance</h3>
-      <div className="h-80 w-full">
+      <h3 className="oryx-heading text-lg mb-4">Role Utilisation Performance</h3>
+      <div className="h-[300px] w-full">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
             layout="vertical"
-            margin={{ left: 60, right: 60, top: 40, bottom: 20 }}
+            margin={{ left: 30, right: 30, top: 20, bottom: 20 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
@@ -233,63 +239,66 @@ export default function RoleUtilBullet({ filteredRows }) {
         </ResponsiveContainer>
       </div>
       
-      {/* Enhanced legend with team-specific colors */}
-      <div className="mt-6 space-y-3">
-        <div className="text-center text-xs text-slate-400 mb-3">Legend</div>
-        <div className="grid grid-cols-1 gap-3">
-          {data.map((item) => {
-            const teamColor = teamColors[item.role]
-            return (
-              <div key={item.role} className="flex items-center justify-between text-xs">
-                <div className="flex items-center gap-2">
+      {/* Enhanced legend with team-specific colors - Side by side layout */}
+      <div className="mt-6">
+        <div className="grid grid-cols-2 gap-6">
+          {/* Left side - Legend */}
+          <div className="space-y-3">
+            <div className="text-center text-xs text-slate-400 mb-3">Legend</div>
+            <div className="grid grid-cols-1 gap-3">
+              {data.map((item) => {
+                const teamColor = teamColors[item.role]
+                return (
+                  <div key={item.role} className="flex items-center justify-between text-xs">
+                    <div className="flex items-center gap-2">
+                      <div 
+                        className="h-3 w-3 rounded" 
+                        style={{ backgroundColor: teamColor.primary }}
+                      ></div>
+                      <span className="text-slate-300">{item.role} Team</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-slate-400">Target:</span>
+                      <span 
+                        className="font-medium" 
+                        style={{ color: teamColor.target }}
+                      >
+                        {item.target}%
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+          
+          {/* Right side - Target Lines */}
+          <div className="space-y-3">
+            <div className="text-center text-xs text-slate-400 mb-3">Target Lines</div>
+            {Object.entries(targetGroups).map(([target, teams]) => {
+              let lineColor, labelText, legendText
+              if (teams.length === 1 && teams[0].role === 'PM') {
+                lineColor = teamColors.PM.target
+                labelText = `${target}% - PM Team`
+                legendText = `${target}% - PM Team`
+              } else {
+                lineColor = '#3b82f6'
+                labelText = `${target}% - Cloud Team/Network Team`
+                legendText = `${target}% - Cloud Team/Network Team`
+              }
+              
+              return (
+                <div key={target} className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-1">
                   <div 
-                    className="h-3 w-3 rounded" 
-                    style={{ backgroundColor: teamColor.primary }}
+                    className="h-0.5 w-6" 
+                    style={{ borderTop: `2px dashed ${lineColor}` }}
                   ></div>
-                  <span className="text-slate-300">{item.role} Team</span>
+                  <span style={{ color: lineColor }}>{legendText}</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400">Target:</span>
-                  <span 
-                    className="font-medium" 
-                    style={{ color: teamColor.target }}
-                  >
-                    {item.target}%
-                  </span>
-                </div>
-              </div>
-            )
-          })}
+              )
+            })}
+          </div>
         </div>
-        
-        {/* Target line legend */}
-        <div className="mt-4 pt-3 border-t border-slate-600">
-          <div className="text-center text-xs text-slate-400 mb-2">Target Lines</div>
-          {Object.entries(targetGroups).map(([target, teams]) => {
-            let lineColor, labelText, legendText
-            if (teams.length === 1 && teams[0].role === 'PM') {
-              lineColor = teamColors.PM.target
-              labelText = `${target}% - PM Team`
-              legendText = `${target}% - PM Team`
-            } else {
-              lineColor = '#3b82f6'
-              labelText = `${target}% - Cloud Team/Network Team`
-              legendText = `${target}% - Cloud Team/Network Team`
-            }
-            
-            return (
-              <div key={target} className="flex items-center justify-center gap-2 text-xs text-slate-400 mb-1">
-                <div 
-                  className="h-0.5 w-6" 
-                  style={{ borderTop: `2px dashed ${lineColor}` }}
-                ></div>
-                <span style={{ color: lineColor }}>{legendText}</span>
-              </div>
-            )
-          })}
-        </div>
-        
-
       </div>
     </div>
   )
