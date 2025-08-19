@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, LabelList, Cell } from 'recharts'
 import { ACCESSIBLE_COLORS } from '../lib/utils.jsx'
+import { uiTheme } from '../theme'
 
 export default function TopProjectsBar({ filteredRows, onProjectClick }) {
   const data = useMemo(() => {
@@ -39,10 +40,8 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
         
         if (isPM) {
           projectManagers[project][member] = (projectManagers[project][member] || 0) + hours
-          console.log('Added PM:', member, 'to project:', project, 'hours:', hours) // Debug log
         } else if (isEngineer) {
           projectEngineers[project][member] = (projectEngineers[project][member] || 0) + hours
-          console.log('Added Engineer:', member, 'to project:', project, 'hours:', hours) // Debug log
         }
       }
     }
@@ -55,18 +54,14 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
         const topPM = pmEntries.length > 0 
           ? pmEntries.sort((a, b) => b[1] - a[1])
               .map(([name, hours]) => {
-                console.log('Processing PM name:', name) // Debug log
-                
                 // Convert "Last, First" format to "First Last"
                 if (name.includes(',')) {
                   const parts = name.split(',').map(part => part.trim())
-                  console.log('Split PM parts:', parts) // Debug log
                   
                   if (parts.length === 2) {
                     const firstName = parts[1].trim()
                     const lastName = parts[0].trim()
                     const formattedName = `${firstName} ${lastName}`
-                    console.log('Formatted PM name:', formattedName) // Debug log
                     return formattedName
                   }
                 }
@@ -80,26 +75,20 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
         const engineers = engineerEntries
           .sort((a, b) => b[1] - a[1])
           .map(([name, hours]) => {
-            console.log('Processing engineer name:', name) // Debug log
-            
             // Convert "Last, First" format to "First Last"
             if (name.includes(',')) {
               const parts = name.split(',').map(part => part.trim())
-              console.log('Split parts:', parts) // Debug log
               
               if (parts.length === 2) {
                 const firstName = parts[1].trim()
                 const lastName = parts[0].trim()
                 const formattedName = `${firstName} ${lastName}`
-                console.log('Formatted name:', formattedName) // Debug log
                 return formattedName
               }
             }
             return name // Return as-is if no comma found
           })
           .join(', ')
-        
-        console.log('Final engineers string for project:', project, ':', engineers) // Debug log
         
         return {
           project,
@@ -174,6 +163,14 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
   
   return (
     <div className="oryx-card p-6">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="oryx-heading text-lg flex items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
+            <span className="text-lime-400">🎯</span>
+          </span>
+          Top 30 Projects by Hours
+        </h3>
+      </div>
       <div style={{ height: heightPx }}>
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
@@ -204,42 +201,34 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
                   const engineers = data.engineers || 'Not assigned'
                   
                   return (
-                    <div style={{
-                      backgroundColor: '#1e293b',
-                      border: '1px solid #475569',
-                      borderRadius: '8px',
-                      padding: '12px',
-                      color: '#cbd5e1'
-                    }}>
-                      <div style={{ 
-                        color: '#84cc16', 
-                        fontWeight: 'bold', 
-                        fontSize: '14px',
-                        marginBottom: '8px',
-                        borderBottom: '1px solid #475569',
-                        paddingBottom: '4px'
-                      }}>
-                        Project Details
-                      </div>
-                      <div style={{ 
-                        color: 'white', 
-                        fontWeight: 'bold', 
-                        marginBottom: '6px',
-                        fontSize: '13px'
-                      }}>
-                        {data.project}
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 'bold' }}>Hours:</span> {hours}h ({pct}%)
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 'bold' }}>Company:</span> {company}
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '4px' }}>
-                        <span style={{ fontWeight: 'bold' }}>PM/s:</span> {projectManager}
-                      </div>
-                      <div style={{ color: '#94a3b8', fontSize: '12px' }}>
-                        <span style={{ fontWeight: 'bold' }}>Engineer/s:</span> {engineers}
+                    <div 
+                      className="rounded-lg border p-3 shadow-2xl"
+                      style={{ 
+                        backgroundColor: uiTheme.chart.tooltipBg, 
+                        borderColor: uiTheme.chart.tooltipBorder 
+                      }}
+                    >
+                      <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>
+                        Project: {data.project}
+                      </p>
+                      
+                      <div className="space-y-1">
+                        <div className="flex justify-between items-center text-xs">
+                          <span style={{ color: uiTheme.muted }}>Hours:</span>
+                          <span className="font-medium" style={{ color: uiTheme.secondary }}>{hours}h ({pct}%)</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span style={{ color: uiTheme.muted }}>Company:</span>
+                          <span style={{ color: uiTheme.chart.tooltipText }}>{company}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span style={{ color: uiTheme.muted }}>PM/s:</span>
+                          <span style={{ color: uiTheme.chart.tooltipText }}>{projectManager}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                          <span style={{ color: uiTheme.muted }}>Engineer/s:</span>
+                          <span style={{ color: uiTheme.chart.tooltipText }}>{engineers}</span>
+                        </div>
                       </div>
                     </div>
                   )

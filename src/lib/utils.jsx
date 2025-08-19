@@ -44,13 +44,13 @@ export function formatPercentage(percentage) {
 export const ACCESSIBLE_COLORS = [
   '#B5C933', // Lime Zest (primary)
   '#FF4F00', // Vibrant Orange (secondary)  
-  '#EFECD2', // Stone (light)
-  '#C7D945', // Lighter lime variant
+  '#012A2D', // Midnight Green (dark)
+  '#8B9DC3', // Soft Blue (medium contrast)
   '#FF8A40', // Lighter orange variant
-  '#D4D1B8', // Muted stone variant
+  '#586961', // Smokey Sage (muted)
   '#A3B82C', // Darker lime variant
   '#FF6B1A', // Medium orange variant
-  '#586961', // Smokey Sage (muted)
+  '#6B8E60', // Forest Green (medium)
   '#FF3B00', // Darker orange variant
 ]
 

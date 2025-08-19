@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts'
 import { ACCESSIBLE_COLORS } from '../lib/utils.jsx'
+import { uiTheme } from '../theme'
 
 export default function ProjectTypeTrend({ filteredRows }) {
   const { monthlyData, projectTypeSummary, topProjectTypes, yAxisDomain } = useMemo(() => {
@@ -82,33 +83,7 @@ export default function ProjectTypeTrend({ filteredRows }) {
         (chartData[chartData.length - 1][projectType] || 0) - (chartData[0][projectType] || 0) : 0
     }))
     
-    // Debug logging
-    console.log('ProjectTypeTrend Debug:', {
-      totalRows: filteredRows.length,
-      uniqueMonths: Object.keys(monthlyData),
-      uniqueProjectTypes: Object.keys(projectTypeTotals),
-      topProjectTypes,
-      chartDataLength: chartData.length,
-      sampleChartData: chartData.slice(0, 2),
-      projectTypeSummary,
-      sampleRow: filteredRows[0],
-      hasCalendarMonth: filteredRows[0]?.calendarMonth,
-      hasDate: filteredRows[0]?.Date,
-      maxMonthlyHours,
-      yAxisMax
-    })
-    
-    // Additional debug for bar chart
-    console.log('Bar Chart Debug:', {
-      projectTypeSummaryLength: projectTypeSummary.length,
-      firstBar: projectTypeSummary[0],
-      allBars: projectTypeSummary.map(item => ({
-        projectType: item.projectType,
-        totalHours: item.totalHours,
-        avgMonthlyHours: item.avgMonthlyHours,
-        trend: item.trend
-      }))
-    })
+
     
     return { 
       monthlyData: chartData,
@@ -121,16 +96,25 @@ export default function ProjectTypeTrend({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
-          {payload
-            .filter(item => item.value > 0)
-            .sort((a, b) => b.value - a.value)
-            .map((item, index) => (
-              <p key={index} className="text-xs" style={{ color: item.color }}>
-                {item.dataKey}: {item.value}h
-              </p>
-            ))}
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: uiTheme.chart.tooltipBg, 
+            borderColor: uiTheme.chart.tooltipBorder 
+          }}
+        >
+          <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>{label}</p>
+          <div className="space-y-1">
+            {payload
+              .filter(item => item.value > 0)
+              .sort((a, b) => b.value - a.value)
+              .map((item, index) => (
+                <div key={index} className="flex justify-between items-center text-xs">
+                  <span style={{ color: uiTheme.muted }}>{item.dataKey}:</span>
+                  <span className="font-medium" style={{ color: uiTheme.secondary }}>{item.value}h</span>
+                </div>
+              ))}
+          </div>
         </div>
       )
     }
@@ -142,7 +126,7 @@ export default function ProjectTypeTrend({ filteredRows }) {
       <div className="oryx-card p-8">
         <h3 className="oryx-heading text-lg mb-4">Project Type Trends & Summary</h3>
         <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-          No monthly trend data available. Check console for debug info.
+          No monthly trend data available.
         </div>
       </div>
     )
@@ -163,15 +147,9 @@ export default function ProjectTypeTrend({ filteredRows }) {
         
         {/* Project Type Summary Bars Only */}
         <div className="mb-6 overflow-hidden"> {/* Added overflow-hidden to prevent chart from going outside card */}
-          {/* Debug header */}
-          <div className="mb-3 p-2 bg-slate-800/50 rounded text-xs text-slate-300">
-            <strong>Bar Chart Data:</strong> {projectTypeSummary.length} project types, 
-            Range: {Math.min(...projectTypeSummary.map(b => b.totalHours))}h - {Math.max(...projectTypeSummary.map(b => b.totalHours))}h
-          </div>
-          
           {/* Enhanced HTML-based bar chart */}
-          <div className="mb-6 p-4 bg-slate-800/30 rounded overflow-hidden"> {/* Added overflow-hidden */}
-            <h4 className="text-sm font-medium text-slate-300 mb-6">Project Type Summary (Interactive Chart)</h4>
+          <div className="mb-6 p-4 rounded overflow-hidden"> {/* Removed background */}
+            <h4 className="oryx-heading text-lg mb-6">Project Type Summary (Interactive Chart)</h4>
             <div className="space-y-4 overflow-hidden"> {/* Added overflow-hidden */}
               {projectTypeSummary.map((entry, index) => {
                 const maxHours = Math.max(...projectTypeSummary.map(b => b.totalHours))
@@ -260,11 +238,7 @@ export default function ProjectTypeTrend({ filteredRows }) {
               })}
             </div>
           </div>
-          
-          {/* Debug info for bar chart */}
-          <div className="mt-3 text-xs text-slate-400">
-            Debug: {projectTypeSummary.length} bars, first: {projectTypeSummary[0]?.projectType} ({projectTypeSummary[0]?.totalHours}h)
-          </div>
+
         </div>
         
         {/* Quick Insights */}
@@ -347,15 +321,9 @@ export default function ProjectTypeTrend({ filteredRows }) {
       
       {/* Project Type Summary Bars */}
       <div className="mb-6 overflow-hidden"> {/* Added overflow-hidden to prevent chart from going outside card */}
-        {/* Debug header */}
-        <div className="mb-3 p-2 bg-slate-800/50 rounded text-xs text-slate-300">
-          <strong>Bar Chart Data:</strong> {projectTypeSummary.length} project types, 
-          Range: {Math.min(...projectTypeSummary.map(b => b.totalHours))}h - {Math.max(...projectTypeSummary.map(b => b.totalHours))}h
-        </div>
-        
         {/* Enhanced HTML-based bar chart */}
-        <div className="mb-6 p-4 bg-slate-800/30 rounded overflow-hidden"> {/* Added overflow-hidden */}
-          <h4 className="text-sm font-medium text-slate-300 mb-6">Project Type Summary (Interactive Chart)</h4>
+        <div className="mb-6 p-4 rounded overflow-hidden"> {/* Removed background */}
+          <h4 className="oryx-heading text-lg mb-6">Project Type Summary (Interactive Chart)</h4>
           <div className="space-y-4 overflow-hidden"> {/* Added overflow-hidden */}
             {projectTypeSummary.map((entry, index) => {
               const maxHours = Math.max(...projectTypeSummary.map(b => b.totalHours))
@@ -444,11 +412,7 @@ export default function ProjectTypeTrend({ filteredRows }) {
             })}
           </div>
         </div>
-        
-        {/* Debug info for bar chart */}
-        <div className="mt-3 text-xs text-slate-400">
-          Debug: {projectTypeSummary.length} bars, first: {projectTypeSummary[0]?.projectType} ({projectTypeSummary[0]?.totalHours}h)
-        </div>
+
       </div>
       
       {/* Quick Insights */}

@@ -263,7 +263,7 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
       </div>
       <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded bg-lime-400"></div>
+          <div className="h-3 w-3 rounded" style={{ backgroundColor: 'rgb(181, 201, 51)' }}></div>
           <span>Billable Hours</span>
         </div>
         <div className="flex items-center gap-2">

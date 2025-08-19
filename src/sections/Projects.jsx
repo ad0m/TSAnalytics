@@ -20,12 +20,6 @@ export default function Projects({ filteredRows, onCompanyFilter }) {
     <div className="space-y-6">
       {/* Top Projects Bar */}
       <section>
-        <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-            <span className="text-lime-400">🎯</span>
-          </span>
-          Top 30 Projects by Hours
-        </h2>
         <TopProjectsBar 
           filteredRows={filteredRows} 
           onProjectClick={handleProjectClick}

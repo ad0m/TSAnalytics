@@ -66,7 +66,7 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
           {Object.entries(projects).map(([project, hours]) => (
             <div key={project} className="flex justify-between items-center text-xs mb-1">
               <span className="truncate max-w-32" style={{ color: uiTheme.muted }}>{project}:</span>
-              <span className="font-medium" style={{ color: uiTheme.primary }}>{Math.round(hours * 4) / 4}h</span>
+              <span className="font-medium" style={{ color: uiTheme.secondary }}>{Math.round(hours * 4) / 4}h</span>
             </div>
           ))}
           
@@ -77,7 +77,7 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
             </div>
           </div>
           
-          <p className="text-xs mt-2 text-center" style={{ color: uiTheme.primary }}>
+          <p className="text-xs mt-2 text-center" style={{ color: uiTheme.secondary }}>
             Click to filter by this company
           </p>
         </div>
@@ -106,12 +106,12 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   return (
     <div className="oryx-card p-6">
       <h3 className="oryx-heading text-lg mb-4">Top 10 Companies by Billable Hours</h3>
-      <div className="h-96">
+      <div className="h-[28rem]">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data} 
             layout="vertical" 
-            margin={{ left: 12, right: 24, top: 8, bottom: 8 }}
+            margin={{ left: 12, right: 24, top: 8, bottom: 40 }}
           >
             <defs>
               <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">

@@ -289,12 +289,7 @@ export default function RoleUtilBullet({ filteredRows }) {
           })}
         </div>
         
-        <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded bg-slate-500"></div>
-            <span>Actual Utilisation</span>
-          </div>
-        </div>
+
       </div>
     </div>
   )

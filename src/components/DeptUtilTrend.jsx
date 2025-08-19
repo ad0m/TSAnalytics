@@ -170,7 +170,7 @@ export default function DeptUtilTrend({ filteredRows }) {
       </div>
               <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 bg-lime-400 rounded"></div>
+            <div className="h-1 w-6 rounded" style={{ backgroundColor: 'rgb(181, 201, 51)' }}></div>
             <span>Dept Utilisation</span>
           </div>
         <div className="flex items-center gap-2">
