@@ -60,7 +60,8 @@ body {
   }
   
   /* Ensure chart text elements are visible - override SVG text styling */
-  .oryx-card svg text {
+  /* Exclude heatmaps so they can compute contrast dynamically */
+  .oryx-card:not(.oryx-heatmap) svg text {
     fill: #111C3A !important; /* Dark Twilight Blue for all SVG text */
   }
   

@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer } from 'recharts'
 import dayjs from 'dayjs'
+import { uiTheme } from '../theme'
 
 export default function CumulativeBillableVsNon({ filteredRows }) {
   const data = useMemo(() => {
@@ -56,20 +57,33 @@ export default function CumulativeBillableVsNon({ filteredRows }) {
       const data = payload[0].payload
       const total = payload.reduce((sum, item) => sum + item.value, 0)
       
+             const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{dayjs(data.date).format('MMM DD, YYYY')}</p>
-          <p className="text-xs text-slate-300 mb-2">Cumulative Total: {total.toFixed(2)}h</p>
-          {payload.map((item, index) => (
-            <p key={index} className="text-xs" style={{ color: item.color }}>
-              {item.dataKey === 'cumulativeBillable' ? 'Cumulative Billable' : 'Cumulative Non-billable'}: {item.value}h
-            </p>
-          ))}
-          <div className="mt-2 pt-2 border-t border-slate-600">
-            <p className="text-xs text-slate-400">Daily breakdown:</p>
-            <p className="text-xs text-green-400">Billable: {data.dailyBillable}h</p>
-            <p className="text-xs text-red-400">Non-billable: {data.dailyNonBillable}h</p>
-          </div>
+        <div className="rounded-lg border p-3 shadow-2xl" style={{ 
+          backgroundColor: uiTheme.surface, 
+          borderColor: uiTheme.muted,
+          color: uiTheme.chart.tooltipText
+        }}>
+                     <p className="text-sm font-medium" style={{ textShadow }}>{dayjs(data.date).format('MMM DD, YYYY')}</p>
+           <p className="text-xs mb-2" style={{ color: uiTheme.chart.tooltipText, textShadow }}>Cumulative Total: {total.toFixed(2)}h</p>
+                       {payload.map((item, index) => (
+              <p key={index} className="text-xs" style={{ textShadow }}>
+                <span style={{ color: '#64748b' }}>{item.dataKey === 'cumulativeBillable' ? 'Cumulative Billable' : 'Cumulative Non-billable'}: </span>
+                <span className="font-semibold" style={{ color: item.color }}>{item.value}h</span>
+              </p>
+            ))}
+           <div className="mt-2 pt-2" style={{ borderTop: `1px solid ${uiTheme.muted}` }}>
+             <p className="text-xs" style={{ color: uiTheme.chart.tooltipText, textShadow }}>Daily breakdown:</p>
+                                                                                                                   <p className="text-xs" style={{ textShadow }}>
+                 <span style={{ color: '#64748b' }}>Billable: </span>
+                 <span className="font-semibold" style={{ color: '#84cc16' }}>{data.dailyBillable}h</span>
+               </p>
+                                                                                                                                                                                                                                       <p className="text-xs" style={{ textShadow }}>
+                 <span style={{ color: '#64748b' }}>Non-billable: </span>
+                 <span className="font-semibold" style={{ color: '#ef4444' }}>{data.dailyNonBillable}h</span>
+               </p>
+           </div>
         </div>
       )
     }

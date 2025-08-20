@@ -96,23 +96,26 @@ export default function ProjectTypeTrend({ filteredRows }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: uiTheme.chart.tooltipBg, 
-            borderColor: uiTheme.chart.tooltipBorder 
+            backgroundColor: uiTheme.surface, 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>{label}</p>
+          <p className="text-sm font-medium mb-2" style={{ textShadow }}>{label}</p>
           <div className="space-y-1">
             {payload
               .filter(item => item.value > 0)
               .sort((a, b) => b.value - a.value)
               .map((item, index) => (
-                <div key={index} className="flex justify-between items-center text-xs">
-                  <span style={{ color: item.color }}>{item.dataKey}:</span>
-                  <span className="font-medium" style={{ color: item.color }}>{item.value}h</span>
+                <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                  <span style={{ color: '#64748b' }}>{item.dataKey}:</span>
+                  <span className="font-semibold" style={{ color: item.color }}>{item.value}h</span>
                 </div>
               ))}
           </div>

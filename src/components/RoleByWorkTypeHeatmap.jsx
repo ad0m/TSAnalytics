@@ -83,15 +83,30 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
   const getCellColor = (intensity) => {
     if (intensity === 0) return '#1e293b' // Dark slate for zero
     
-    // Create a gradient from dark blue to bright lime green
+    // Create a gradient from dark blue to vibrant orange
     const darkBlue = { r: 30, g: 41, b: 59 } // slate-800
-    const limeGreen = { r: 132, g: 204, b: 22 } // lime-500
+    const vibrantOrange = { r: 255, g: 79, b: 0 } // #FF4F00
     
-    const r = Math.round(darkBlue.r + (limeGreen.r - darkBlue.r) * intensity)
-    const g = Math.round(darkBlue.g + (limeGreen.g - darkBlue.g) * intensity)
-    const b = Math.round(darkBlue.b + (limeGreen.b - darkBlue.b) * intensity)
+    const r = Math.round(darkBlue.r + (vibrantOrange.r - darkBlue.r) * intensity)
+    const g = Math.round(darkBlue.g + (vibrantOrange.g - darkBlue.g) * intensity)
+    const b = Math.round(darkBlue.b + (vibrantOrange.b - darkBlue.b) * intensity)
     
     return `rgb(${r}, ${g}, ${b})`
+  }
+
+  // Decide readable text colors based on background intensity
+  const getTextStyles = (intensity) => {
+    // Dark cells (< ~0.5) -> light text with dark stroke; bright cells -> dark text with light stroke
+    if (intensity < 0.5) {
+      return {
+        fill: '#EFECD2',
+        stroke: 'rgba(0,0,0,0.55)'
+      }
+    }
+    return {
+      fill: '#111C3A',
+      stroke: 'rgba(255,255,255,0.6)'
+    }
   }
   
   const cellWidth = 120
@@ -113,39 +128,41 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
   const totalHeight = margin.top + (roles.length * cellHeight) + margin.bottom
   
   return (
-    <div className="oryx-card p-6">
+    <div className="oryx-card oryx-heatmap p-6">
       <h3 className="oryx-heading text-lg mb-4">Role by Work Type Heatmap</h3>
       <div className="h-80 overflow-auto">
         <div style={{ width: Math.max(totalWidth, 600), height: Math.max(totalHeight, 300) }}>
           <svg width="100%" height="100%" className="overflow-visible">
-            {/* Y-axis labels (Roles) */}
-            {roles.map((role, index) => (
-              <text
-                key={role}
-                x={margin.left - 10}
-                y={margin.top + (index * cellHeight) + (cellHeight / 2)}
-                textAnchor="end"
-                dominantBaseline="middle"
-                className="text-xs fill-slate-300"
-              >
-                {role}
-              </text>
-            ))}
+                         {/* Y-axis labels (Roles) */}
+             {roles.map((role, index) => (
+               <text
+                 key={role}
+                 x={margin.left - 10}
+                 y={margin.top + (index * cellHeight) + (cellHeight / 2)}
+                 textAnchor="end"
+                 dominantBaseline="middle"
+                 className="text-xs"
+                 style={{ fill: '#111C3A' }}
+               >
+                 {role}
+               </text>
+             ))}
             
-            {/* X-axis labels (Work Types) */}
-            {workTypes.map((workType, index) => (
-              <text
-                key={workType}
-                x={margin.left + (index * cellWidth) + (cellWidth / 2)}
-                y={margin.top + (roles.length * cellHeight) + 20}
-                textAnchor="middle"
-                dominantBaseline="hanging"
-                className="text-xs fill-slate-300"
-                transform={`rotate(-35, ${margin.left + (index * cellWidth) + (cellWidth / 2)}, ${margin.top + (roles.length * cellHeight) + 20})`}
-              >
-                {workType}
-              </text>
-            ))}
+                         {/* X-axis labels (Work Types) */}
+             {workTypes.map((workType, index) => (
+               <text
+                 key={workType}
+                 x={margin.left + (index * cellWidth) + (cellWidth / 2)}
+                 y={margin.top + (roles.length * cellHeight) + 20}
+                 textAnchor="middle"
+                 dominantBaseline="hanging"
+                 className="text-xs"
+                 style={{ fill: '#111C3A' }}
+                 transform={`rotate(-35, ${margin.left + (index * cellWidth) + (cellWidth / 2)}, ${margin.top + (roles.length * cellHeight) + 20})`}
+               >
+                 {workType}
+               </text>
+             ))}
             
             {/* Heatmap cells */}
             {heatmapData.map((cell, index) => {
@@ -153,6 +170,7 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
               const color = getCellColor(intensity)
               const x = margin.left + (cell.workTypeIndex * cellWidth)
               const y = margin.top + (cell.roleIndex * cellHeight)
+              const textStyles = getTextStyles(intensity)
               
               return (
                 <g key={index}>
@@ -178,7 +196,8 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
                     y={y + cellHeight / 2 - 8}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-xs font-medium fill-white pointer-events-none"
+                    className="text-xs font-medium pointer-events-none"
+                    style={{ fill: textStyles.fill, stroke: textStyles.stroke, strokeWidth: 0.6, paintOrder: 'stroke fill' }}
                   >
                     {cell.hours}h
                   </text>
@@ -187,7 +206,8 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
                     y={y + cellHeight / 2 + 8}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-xs fill-slate-200 pointer-events-none"
+                    className="text-xs pointer-events-none"
+                    style={{ fill: textStyles.fill, stroke: textStyles.stroke, strokeWidth: 0.6, paintOrder: 'stroke fill' }}
                   >
                     {cell.percentageOfRole}%
                   </text>
@@ -195,31 +215,31 @@ export default function RoleByWorkTypeHeatmap({ filteredRows }) {
               )
             })}
             
-            {/* Color scale legend */}
-            <g transform={`translate(${margin.left}, ${margin.top - 30})`}>
-              <text x={0} y={0} className="text-xs fill-slate-300">
-                Hours: 0
-              </text>
-              <rect x={50} y={-8} width={100} height={16} fill="url(#heatmapGradient)" stroke="#475569" />
-              <text x={160} y={0} className="text-xs fill-slate-300">
-                {Math.round(maxHours * 4) / 4}
-              </text>
-            </g>
+                         {/* Color scale legend */}
+             <g transform={`translate(${margin.left}, ${margin.top - 30})`}>
+               <text x={0} y={0} className="text-xs" style={{ fill: '#111C3A' }}>
+                 Hours: 0
+               </text>
+               <rect x={50} y={-8} width={100} height={16} fill="url(#heatmapGradient)" stroke="#475569" />
+               <text x={160} y={0} className="text-xs" style={{ fill: '#111C3A' }}>
+                 {Math.round(maxHours * 4) / 4}
+               </text>
+             </g>
             
-            {/* Gradient definition */}
-            <defs>
-              <linearGradient id="heatmapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stopColor="#1e293b" />
-                <stop offset="100%" stopColor="#84cc16" />
-              </linearGradient>
-            </defs>
+                         {/* Gradient definition */}
+             <defs>
+               <linearGradient id="heatmapGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                 <stop offset="0%" stopColor="#1e293b" />
+                 <stop offset="100%" stopColor="#FF4F00" />
+               </linearGradient>
+             </defs>
           </svg>
         </div>
       </div>
-      <div className="mt-4 text-center text-xs text-slate-400 space-y-1">
-        <p>Color intensity shows hours relative to maximum (darker = fewer hours, brighter = more hours)</p>
-        <p>Percentages show each work type as % of role's total hours</p>
-      </div>
+             <div className="mt-4 text-center text-xs text-slate-400 space-y-1">
+         <p>Colour intensity shows hours relative to maximum (darker = fewer hours, brighter = more hours)</p>
+         <p>Percentages show each work type as % of role's total hours</p>
+       </div>
     </div>
   )
 }
