@@ -73,23 +73,23 @@ export default function CalendarHeatmap({ filteredRows }) {
   
   // Get color intensity based on hours
   const getDayColor = (dayData) => {
-    if (!dayData) return '#1e293b' // No data
+    if (!dayData) return '#334155' // Lighter slate for no data - better contrast
     
     const hours = dayData.hours
-    if (hours === 0) return '#1e293b'
+    if (hours === 0) return '#334155' // Lighter slate for zero hours - better contrast
     
     // Base intensity on hours (0-12h scale)
     const intensity = Math.min(hours / 12, 1)
     
     if (dayData.isOutlier) {
-      // Red for outliers
-      return `rgba(239, 68, 68, ${0.4 + intensity * 0.6})`
+      // Bright red for outliers - much more visible
+      return `rgba(239, 68, 68, ${0.8 + intensity * 0.2})`
     } else if (dayData.isOvertime) {
-      // Orange for overtime
-      return `rgba(251, 146, 60, ${0.4 + intensity * 0.6})`
+      // Bright orange for overtime - much more visible
+      return `rgba(251, 146, 60, ${0.8 + intensity * 0.2})`
     } else {
-      // Green for normal
-      return `rgba(132, 204, 22, ${0.2 + intensity * 0.6})`
+      // Bright green for normal - much more visible
+      return `rgba(132, 204, 22, ${0.7 + intensity * 0.3})`
     }
   }
   
@@ -211,24 +211,30 @@ export default function CalendarHeatmap({ filteredRows }) {
                     title={dayData ? `${dayDate.format('MMM DD')}: ${dayData.hours}h${dayData.isOvertime ? ' (OT)' : ''}${dayData.isOutlier ? ' (OUTLIER)' : ''}` : dayDate.format('MMM DD')}
                   >
                     {/* Day number */}
-                    <span className="text-xs text-white font-medium">
+                    <span 
+                      className={`text-xs font-bold drop-shadow-sm translate-y-[2px] ${
+                        dayData && dayData.hours > 0 
+                          ? 'text-white' 
+                          : 'text-slate-200'
+                      }`}
+                    >
                       {dayDate.date()}
                     </span>
                     
                     {/* Overtime badge */}
                     {dayData?.isOvertime && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-orange-500 border border-slate-800"></div>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-orange-500 border-2 border-white shadow-sm"></div>
                     )}
                     
                     {/* Outlier badge */}
                     {dayData?.isOutlier && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border border-slate-800"></div>
+                      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
                     )}
                     
                     {/* Hours text */}
                     {dayData && dayData.hours > 0 && (
                       <div className="absolute bottom-0 left-0 right-0 text-center">
-                        <span className="text-[10px] text-white bg-black bg-opacity-50 px-1 rounded">
+                        <span className="text-[10px] text-stone-200 bg-black bg-opacity-70 px-1 rounded font-semibold mt-0.5">
                           {dayData.hours.toFixed(1)}
                         </span>
                       </div>
@@ -245,15 +251,15 @@ export default function CalendarHeatmap({ filteredRows }) {
       <div className="mt-4 space-y-2 text-xs text-slate-400">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(132, 204, 22, 0.6)' }}></div>
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(132, 204, 22, 0.8)' }}></div>
             <span>Normal hours</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(251, 146, 60, 0.6)' }}></div>
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(251, 146, 60, 0.8)' }}></div>
             <span>Overtime (&gt;7.5h or weekend)</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.6)' }}></div>
+            <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.8)' }}></div>
             <span>Outlier (&gt;12h)</span>
           </div>
         </div>
