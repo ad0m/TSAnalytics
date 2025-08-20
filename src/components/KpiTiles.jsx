@@ -564,12 +564,7 @@ export default function KpiTiles({ filteredRows, onReset }) {
              />
            </div>
 
-          {/* Enhanced description */}
-          <div className="border-t border-slate-600/50 pt-3">
-            <p className="text-sm text-slate-400 leading-relaxed">
-              {tile.description}
-            </p>
-          </div>
+          
         </div>
       ))}
     </div>
