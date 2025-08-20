@@ -234,7 +234,7 @@ export default function CalendarHeatmap({ filteredRows }) {
                     {/* Hours text */}
                     {dayData && dayData.hours > 0 && (
                       <div className="absolute bottom-0 left-0 right-0 text-center">
-                        <span className="text-[10px] text-stone-200 bg-black bg-opacity-70 px-1 rounded font-semibold mt-0.5">
+                        <span className="text-[10px] text-stone-200 bg-black bg-opacity-70 px-1 rounded font-semibold">
                           {dayData.hours.toFixed(1)}
                         </span>
                       </div>
