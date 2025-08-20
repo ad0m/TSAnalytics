@@ -27,9 +27,15 @@ export default function HoursByPerson({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
-          <p className="text-xs text-slate-300">
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#EFECD2',
+            borderColor: '#586961'
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
+          <p className="text-xs" style={{ color: '#586961' }}>
             Total Hours: {payload[0].value}h
           </p>
         </div>

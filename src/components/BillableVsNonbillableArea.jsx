@@ -190,14 +190,20 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
     if (active && payload && payload.length) {
       const total = payload.reduce((sum, entry) => sum + entry.value, 0)
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#EFECD2',
+            borderColor: '#586961'
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
           {payload.reverse().map((entry, index) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.dataKey === 'billable' ? 'Billable' : 'Non-billable'}: {entry.value}h
             </p>
           ))}
-          <p className="text-xs text-slate-300 border-t border-slate-600 pt-1 mt-1">
+          <p className="text-xs border-t pt-1 mt-1" style={{ color: '#586961', borderColor: '#586961' }}>
             Total: {total}h
           </p>
         </div>

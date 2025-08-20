@@ -59,9 +59,15 @@ export default function Top5ClientsTrend({ filteredRows, onCompanyFilter }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-2 shadow-xl">
-          <p className="text-xs font-medium text-white">{label}</p>
-          <p className="text-xs text-slate-300">
+        <div 
+          className="rounded-lg border p-2 shadow-xl"
+          style={{ 
+            backgroundColor: '#EFECD2',
+            borderColor: '#586961'
+          }}
+        >
+          <p className="text-xs font-medium" style={{ color: '#111C3A' }}>{label}</p>
+          <p className="text-xs" style={{ color: '#586961' }}>
             Hours: {payload[0].value}h
           </p>
         </div>

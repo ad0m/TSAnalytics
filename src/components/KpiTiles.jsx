@@ -474,14 +474,14 @@ export default function KpiTiles({ filteredRows, onReset }) {
   const MiniTrendChart = ({ data, color, title }) => {
     if (!data || data.length < 2) {
       return (
-        <div className="h-[60px] w-[120px] bg-slate-700/30 rounded flex items-center justify-center">
+        <div className="h-[50px] w-[180px] bg-slate-700/30 rounded flex items-center justify-center">
           <span className="text-xs text-slate-400">No trend data</span>
         </div>
       )
     }
     
     return (
-      <div className="h-[60px] w-[120px]">
+      <div className="h-[50px] w-[180px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 5, left: 5, bottom: 5 }}>
             <XAxis 
@@ -495,9 +495,9 @@ export default function KpiTiles({ filteredRows, onReset }) {
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
                   return (
-                    <div className="bg-slate-800 border border-slate-600 rounded-lg p-2 text-xs">
-                      <p className="font-medium text-white">{label}</p>
-                      <p className="text-slate-300">
+                    <div className="bg-stone-100 border border-stone-300 rounded-lg p-2 text-xs">
+                      <p className="font-medium text-stone-800">{label}</p>
+                      <p className="text-stone-600">
                         {title.includes('%') ? `${payload[0].value}%` : `${payload[0].value}h`}
                       </p>
                     </div>
@@ -529,52 +529,47 @@ export default function KpiTiles({ filteredRows, onReset }) {
       {tiles.map((tile, index) => (
         <div 
           key={index} 
-          className="oryx-card p-6 transition-all duration-300 hover:shadow-xl hover:scale-[1.02] cursor-pointer group relative"
+          className="oryx-card p-4 relative"
         >
-                     {/* Header with enhanced icon and title */}
-           <div className="flex items-center gap-4 mb-4">
-             <div className={`relative flex h-16 w-16 items-center justify-center rounded-xl bg-gradient-to-br ${tile.color} shadow-lg group-hover:shadow-xl transition-all duration-300`}>
-               <span className="text-2xl">{tile.icon}</span>
-               {/* Subtle glow effect */}
-               <div className={`absolute inset-0 rounded-xl bg-gradient-to-br ${tile.color} opacity-0 group-hover:opacity-30 transition-opacity duration-300`}></div>
+                     {/* Header with icon, title, and value on the right */}
+           <div className="flex items-start justify-between mb-3">
+             <div className="flex items-center gap-3">
+               <div className={`relative flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${tile.color} shadow-lg`}>
+                 <span className="text-xl">{tile.icon}</span>
+               </div>
+               <div className="flex-1">
+                 <h3 className="text-base font-semibold text-slate-300 mb-1">
+                   {tile.title}
+                 </h3>
+                 {tile.subtitle && (
+                   <div className="text-xs text-slate-400">
+                     {tile.subtitle}
+                   </div>
+                 )}
+               </div>
              </div>
-             <div className="flex-1">
-               <h3 className="text-base font-semibold text-slate-300 mb-1 group-hover:text-white transition-colors duration-200">
-                 {tile.title}
-               </h3>
-               {tile.subtitle && (
-                 <div className="text-xs text-slate-400 group-hover:text-slate-300 transition-colors duration-200">
-                   {tile.subtitle}
-                 </div>
-               )}
+             
+             {/* Main value positioned on the right */}
+             <div className="text-3xl font-bold text-white text-right">
+               {tile.value}
              </div>
            </div>
 
-           {/* Main value with trend chart inline */}
-           <div className="flex items-center justify-between mb-4">
-             <div className="text-3xl font-bold text-white group-hover:text-lime-400 transition-colors duration-200">
-               {tile.value}
-             </div>
-             
-             {/* Mini weekly trend line chart - positioned to the right of the value */}
-             <div className="flex-shrink-0">
-               <MiniTrendChart 
-                 data={getWeeklyData(tile.title, filteredRows)}
-                 color={tile.chartColor}
-                 title={tile.title}
-               />
-             </div>
+           {/* Trend chart below */}
+           <div className="flex justify-end mb-3">
+             <MiniTrendChart 
+               data={getWeeklyData(tile.title, filteredRows)}
+               color={tile.chartColor}
+               title={tile.title}
+             />
            </div>
 
           {/* Enhanced description */}
-          <div className="border-t border-slate-600/50 pt-4">
-            <p className="text-sm text-slate-400 leading-relaxed group-hover:text-slate-300 transition-colors duration-200">
+          <div className="border-t border-slate-600/50 pt-3">
+            <p className="text-sm text-slate-400 leading-relaxed">
               {tile.description}
             </p>
           </div>
-
-          {/* Hover effect overlay */}
-          <div className="absolute inset-0 rounded-lg bg-gradient-to-br from-transparent to-slate-800/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
         </div>
       ))}
     </div>

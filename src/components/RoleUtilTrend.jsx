@@ -89,8 +89,14 @@ export default function RoleUtilTrend({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#EFECD2',
+            borderColor: '#586961'
+          }}
+        >
+          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
           {payload.map((item, index) => {
             const target = ROLE_TARGETS[item.dataKey] * 100
             return (

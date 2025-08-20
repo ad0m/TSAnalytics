@@ -100,11 +100,17 @@ export default function DeptUtilTrend({ filteredRows }) {
     if (active && payload && payload.length) {
       const data = payload[0].payload
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">{label}</p>
-          <p className="text-xs text-slate-300">
-            Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
-          </p>
+                 <div 
+           className="rounded-lg border p-3 shadow-2xl"
+           style={{ 
+             backgroundColor: '#EFECD2',
+             borderColor: '#586961'
+           }}
+         >
+                     <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
+           <p className="text-xs" style={{ color: '#586961' }}>
+             Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
+           </p>
           {payload.map((entry, index) => (
             <p key={index} className="text-xs" style={{ color: entry.color }}>
               {entry.dataKey === 'utilisation' ? 'Dept Util' : '3-Month Avg'}: {entry.value?.toFixed(1)}%
