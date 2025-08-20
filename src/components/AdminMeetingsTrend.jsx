@@ -84,38 +84,50 @@ export default function AdminMeetingsTrend({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0]?.payload
+      const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: uiTheme.chart.tooltipBg, 
-            borderColor: uiTheme.chart.tooltipBorder 
+            backgroundColor: uiTheme.surface, 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: uiTheme.chart.tooltipText }}>
+          <p className="text-sm font-medium mb-2" style={{ textShadow }}>
             {label}
           </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Admin - Internal Meeting: {data?.adminMeetingHours}h
-          </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Admin: {data?.adminHours}h
-          </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Training: {data?.trainingHours}h
-          </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Bank/Holiday Leave: {data?.bankHolidayLeaveHours}h
-          </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Sick Leave: {data?.sickLeaveHours}h
-          </p>
-          <p className="text-xs mb-1" style={{ color: uiTheme.muted }}>
-            Total Hours: {data?.totalHours}h
-          </p>
-          <p className="text-xs" style={{ color: uiTheme.secondary }}>
-            Admin Share: {data?.adminPercentage}%
-          </p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Admin - Internal Meeting:</span>
+              <span className="font-semibold" style={{ color: '#012A2D' }}>{data?.adminMeetingHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Admin:</span>
+              <span className="font-semibold" style={{ color: '#B5C933' }}>{data?.adminHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Training:</span>
+              <span className="font-semibold" style={{ color: '#EFECD2' }}>{data?.trainingHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Bank/Holiday Leave:</span>
+              <span className="font-semibold" style={{ color: '#586961' }}>{data?.bankHolidayLeaveHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Sick Leave:</span>
+              <span className="font-semibold" style={{ color: '#8B9DC3' }}>{data?.sickLeaveHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Total Hours:</span>
+              <span className="font-semibold" style={{ color: uiTheme.chart.tooltipText }}>{data?.totalHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Admin Share:</span>
+              <span className="font-semibold" style={{ color: '#FF4F00' }}>{data?.adminPercentage}%</span>
+            </div>
+          </div>
         </div>
       )
     }
@@ -180,7 +192,7 @@ export default function AdminMeetingsTrend({ filteredRows }) {
           <Download size={16} /> Export PNG
         </button>
       </div>
-      <div className="h-96 rounded-lg bg-slate-900/30 p-3">
+      <div className="h-96 rounded-lg p-3">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart 
             data={data} 

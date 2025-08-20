@@ -223,7 +223,7 @@ export default function OvertimeIncidence({ filteredRows }) {
           <Download size={16} /> Export PNG
         </button>
       </div>
-      <div className="h-80 rounded-lg bg-slate-900/30 p-3">
+      <div className="h-80 rounded-lg p-3">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart 
             data={data.chartData} 

@@ -761,7 +761,7 @@ function Card({ title, children, onExport, heightPx = 380 }) {
           <Download size={16} /> Export PNG
         </button>
       </div>
-      <div style={{ height: heightPx }} className="rounded-lg bg-slate-900/30 p-3">
+      <div style={{ height: heightPx }} className="rounded-lg p-3">
         {children}
       </div>
     </div>
@@ -912,8 +912,18 @@ function ProjectTypeBars({ filteredRows, onExport, onReset }) {
       {!hasData ? (
         <EmptyState title="No project type data" onReset={onReset} />
       ) : (
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={sorted} layout="vertical" margin={{ left: 12, right: 160, top: 8, bottom: 8 }}>
+        <ResponsiveContainer 
+          width="100%" 
+          height="100%" 
+          style={{ backgroundColor: 'transparent' }}
+          className="transparent-chart"
+        >
+          <BarChart 
+            data={sorted} 
+            layout="vertical" 
+            margin={{ left: 12, right: 160, top: 8, bottom: 8 }}
+            style={{ backgroundColor: 'transparent' }}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis type="number" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <YAxis dataKey="name" type="category" width={220} interval={0} tick={{ fill: '#cbd5e1', fontSize: 12 }} />

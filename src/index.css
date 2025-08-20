@@ -71,6 +71,19 @@ body {
   .oryx-card .recharts-cartesian-axis-tick-value {
     fill: #111C3A !important;
   }
+  
+  /* Ensure Recharts charts have transparent backgrounds */
+  .oryx-card .recharts-wrapper,
+  .oryx-card .recharts-surface,
+  .oryx-card .recharts-legend-wrapper,
+  .oryx-card .transparent-chart {
+    background-color: transparent !important;
+  }
+  
+  /* Override any default chart backgrounds */
+  .oryx-card .recharts-default-background {
+    fill: transparent !important;
+  }
   .oryx-heading {
     @apply font-bold tracking-tight;
     color: #111C3A;
