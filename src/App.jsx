@@ -9,6 +9,7 @@ import { FILTER_DEFAULTS, PERIOD_OPTIONS, PRODUCTIVITY_OPTIONS } from './lib/fil
 import { applyFilters, getDistinctValues, getLatestCompleteMonth, derivePeriodDefaults } from './lib/applyFilters.js'
 import { saveFilters, loadFilters, resetFilters } from './lib/filterPersistence.js'
 import { roundToQuarter, formatHours, formatTooltipHours, EmptyState, ACCESSIBLE_COLORS } from './lib/utils.jsx'
+import { uiTheme } from './theme'
 import Overview from './sections/Overview.jsx'
 import Clients from './sections/Clients.jsx'
 import Projects from './sections/Projects.jsx'
@@ -859,6 +860,40 @@ function ProjectTypeBars({ filteredRows, onExport, onReset }) {
     const calc = perBar * sorted.length + base
     return Math.max(420, Math.min(calc, 900))
   }, [sorted.length])
+  
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      const item = payload[0]
+      const hours = Number(item.value || 0)
+      const pct = total > 0 ? ((hours / total) * 100).toFixed(1) : '0.0'
+      
+      return (
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: uiTheme.surface, 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
+          }}
+        >
+          <p className="text-sm font-medium mb-2" style={{ textShadow }}>{item.payload.name}</p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Hours:</span>
+              <span className="font-semibold" style={{ color: item.color }}>{formatTooltipHours(hours)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#64748b' }}>Percentage:</span>
+              <span className="font-semibold" style={{ color: item.color }}>{pct}%</span>
+            </div>
+          </div>
+        </div>
+      )
+    }
+    return null
+  }
+  
   const renderLabel = (props) => {
     const { x = 0, y = 0, width = 0, height = 0, value } = props || {}
     const hours = Number(value || 0)
@@ -882,19 +917,7 @@ function ProjectTypeBars({ filteredRows, onExport, onReset }) {
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis type="number" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <YAxis dataKey="name" type="category" width={220} interval={0} tick={{ fill: '#cbd5e1', fontSize: 12 }} />
-            <ReTooltip 
-              formatter={(v, name, props) => {
-                const hours = Number(v)
-                const pct = total > 0 ? ((hours / total) * 100).toFixed(1) : '0.0'
-                return [`${formatTooltipHours(hours)} (${pct}%)`, props && props.payload ? props.payload.name : name]
-              }}
-              contentStyle={{ 
-                backgroundColor: '#1e293b', 
-                border: '1px solid #475569', 
-                borderRadius: '8px',
-                color: '#cbd5e1'
-              }}
-            />
+            <ReTooltip content={<CustomTooltip />} />
             <Bar dataKey="hours">
               <LabelList dataKey="hours" content={renderLabel} />
               {sorted.map((_, i) => (
