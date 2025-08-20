@@ -111,8 +111,8 @@ export default function ProjectTypeTrend({ filteredRows }) {
               .sort((a, b) => b.value - a.value)
               .map((item, index) => (
                 <div key={index} className="flex justify-between items-center text-xs">
-                  <span style={{ color: uiTheme.muted }}>{item.dataKey}:</span>
-                  <span className="font-medium" style={{ color: uiTheme.secondary }}>{item.value}h</span>
+                  <span style={{ color: item.color }}>{item.dataKey}:</span>
+                  <span className="font-medium" style={{ color: item.color }}>{item.value}h</span>
                 </div>
               ))}
           </div>
@@ -465,22 +465,34 @@ export default function ProjectTypeTrend({ filteredRows }) {
       
       {/* Quick Insights */}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-        <div className="bg-slate-800/50 rounded-lg p-3">
-          <div className="text-lime-400 font-medium mb-1">📈 Most Active</div>
+        <div className="rounded-lg p-3">
+          <div className="mb-1">
+            <span className="inline-flex items-center gap-1 font-bold text-lime-400 text-xl">
+              📈 Most Active
+            </span>
+          </div>
           <div className="text-slate-300">{projectTypeSummary[0]?.projectType || 'N/A'}</div>
           <div className="text-slate-400">{projectTypeSummary[0]?.totalHours || 0}h total</div>
         </div>
         
-        <div className="bg-slate-800/50 rounded-lg p-3">
-          <div className="text-blue-400 font-medium mb-1">📊 Monthly Average</div>
+        <div className="rounded-lg p-3">
+          <div className="mb-1">
+            <span className="inline-flex items-center gap-1 font-bold text-blue-400 text-xl">
+              📊 Monthly Average
+            </span>
+          </div>
           <div className="text-slate-300">
             {Math.round(projectTypeSummary.reduce((sum, item) => sum + item.avgMonthlyHours, 0) / projectTypeSummary.length * 4) / 4}h
           </div>
           <div className="text-slate-400">across all types</div>
         </div>
         
-        <div className="bg-slate-800/50 rounded-lg p-3">
-          <div className="text-purple-400 font-medium mb-1">🔄 Trend Analysis</div>
+        <div className="rounded-lg p-3">
+          <div className="mb-1">
+            <span className="inline-flex items-center gap-1 font-bold text-purple-400 text-xl">
+              🔄 Trend Analysis
+            </span>
+          </div>
           <div className="text-slate-300">
             {projectTypeSummary.filter(d => d.trend > 0).length} growing
           </div>
