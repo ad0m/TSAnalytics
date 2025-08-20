@@ -4,8 +4,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Respo
 const WORK_TYPE_COLORS = {
   'Tech Delivery': '#22d3ee',
   'PM Delivery': '#84cc16', 
-  'Pre-Sales': '#a78bfa',
-  'Internal Admin': '#fb7185',
+  'Internal Admin': '#f59e0b',
   'Internal Support': '#fbbf24',
   'Other': '#9ca3af'
 }

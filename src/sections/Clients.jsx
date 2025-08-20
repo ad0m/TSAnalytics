@@ -20,23 +20,11 @@ export default function Clients({ filteredRows, onCompanyFilter }) {
 
       {/* Client Work Type Mix - Full Width */}
       <section>
-        <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-            <span className="text-lime-400">🔧</span>
-          </span>
-          Client Work Type Mix (100% Stacked)
-        </h2>
         <ClientWorkTypeMix filteredRows={filteredRows} onCompanyFilter={onCompanyFilter} />
       </section>
 
       {/* Client Project Type Mix - Full Width */}
       <section>
-        <h2 className="oryx-heading text-xl mb-4 flex items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-lime-400/20">
-            <span className="text-lime-400">📊</span>
-          </span>
-          Client Project Type Mix
-        </h2>
         <ClientProjectTypeMix filteredRows={filteredRows} onCompanyFilter={onCompanyFilter} />
       </section>
 

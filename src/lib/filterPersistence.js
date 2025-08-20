@@ -1,7 +1,7 @@
 // Filter persistence using localStorage
 
 const STORAGE_KEY = 'oryx-time-analytics-filters'
-const STORAGE_VERSION = '1.0'
+const STORAGE_VERSION = '1.1'
 
 /**
  * Saves filter state to localStorage

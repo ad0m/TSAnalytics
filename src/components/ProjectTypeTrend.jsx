@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts'
 import { ACCESSIBLE_COLORS } from '../lib/utils.jsx'
 import { uiTheme } from '../theme'
 
 export default function ProjectTypeTrend({ filteredRows }) {
+  const [hoverInfo, setHoverInfo] = useState({ index: null, x: 0 })
   const { monthlyData, projectTypeSummary, topProjectTypes, yAxisDomain } = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return { monthlyData: [], projectTypeSummary: [], topProjectTypes: [], yAxisDomain: [0, 100] }
     
@@ -146,18 +147,18 @@ export default function ProjectTypeTrend({ filteredRows }) {
         </p>
         
         {/* Project Type Summary Bars Only */}
-        <div className="mb-6 overflow-hidden"> {/* Added overflow-hidden to prevent chart from going outside card */}
+        <div className="mb-6">
           {/* Enhanced HTML-based bar chart */}
-          <div className="mb-6 p-4 rounded overflow-hidden"> {/* Removed background */}
+          <div className="mb-6 p-4 rounded"> {/* Removed background */}
             <h4 className="oryx-heading text-lg mb-6">Project Type Summary (Interactive Chart)</h4>
-            <div className="space-y-4 overflow-hidden"> {/* Added overflow-hidden */}
+            <div className="space-y-4">
               {projectTypeSummary.map((entry, index) => {
                 const maxHours = Math.max(...projectTypeSummary.map(b => b.totalHours))
                 const barWidth = (entry.totalHours / maxHours) * 100
                 const percentage = ((entry.totalHours / projectTypeSummary.reduce((sum, item) => sum + item.totalHours, 0)) * 100).toFixed(1)
                 
                 return (
-                  <div key={index} className="group overflow-hidden"> {/* Added overflow-hidden */}
+                  <div key={index} className="group">
                     <div className="flex items-center space-x-3 mb-2"> {/* Increased margin bottom */}
                       <div className="w-48 text-xs text-slate-300 truncate group-hover:text-blue-300 transition-colors">
                         {entry.projectType}
@@ -171,31 +172,59 @@ export default function ProjectTypeTrend({ filteredRows }) {
                       <div className="w-48 text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
                         {entry.avgMonthlyHours}h/month avg
                       </div>
-                      <div className="flex-1 bg-slate-700 rounded h-10 relative overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg max-w-full"> {/* Added max-w-full */}
+                      <div 
+                        className="flex-1 bg-slate-700 rounded h-10 relative cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg max-w-full"
+                        onMouseEnter={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          const x = e.clientX - rect.left
+                          setHoverInfo({ index, x })
+                        }}
+                        onMouseMove={(e) => {
+                          const rect = e.currentTarget.getBoundingClientRect()
+                          const x = e.clientX - rect.left
+                          setHoverInfo({ index, x })
+                        }}
+                        onMouseLeave={() => setHoverInfo({ index: null, x: 0 })}
+                      >
                         <div 
                           className="h-full rounded bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:from-blue-400 group-hover:to-blue-500"
                           style={{ width: `${barWidth}%` }}
                         />
                         
-                        {/* Hover overlay with detailed info */}
-                        <div className="absolute inset-0 flex items-center justify-end pr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"> {/* Added pointer-events-none */}
-                          <div className="bg-slate-800/90 rounded-lg px-3 py-2 shadow-xl border border-slate-600 z-10"> {/* Added z-10 */}
-                            <div className="text-xs font-medium text-white whitespace-nowrap">
+                        {/* Hover overlay with detailed info (positioned above bar and follows mouse) */}
+                        <div 
+                          className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-50"
+                          style={{ 
+                            left: hoverInfo.index === index ? `${hoverInfo.x}px` : '0px',
+                            transform: 'translateX(-50%)'
+                          }}
+                        >
+                          <div 
+                            className="rounded-lg px-3 py-2 shadow-xl border"
+                            style={{ 
+                              backgroundColor: uiTheme.chart.tooltipBg,
+                              borderColor: uiTheme.chart.tooltipBorder
+                            }}
+                          >
+                            <div className="text-xs font-medium whitespace-nowrap" style={{ color: uiTheme.chart.tooltipText }}>
                               {entry.projectType}
                             </div>
-                            <div className="text-xs text-slate-300">
-                              Total: <span className="text-blue-300 font-medium">{entry.totalHours}h</span>
+                            <div className="text-xs" style={{ color: uiTheme.muted }}>
+                              Total: <span className="font-medium" style={{ color: uiTheme.secondary }}>{entry.totalHours}h</span>
                             </div>
-                            <div className="text-xs text-slate-300">
-                              Monthly: <span className="text-green-300 font-medium">{entry.avgMonthlyHours}h</span>
+                            <div className="text-xs" style={{ color: uiTheme.muted }}>
+                              Monthly: <span className="font-medium" style={{ color: '#84cc16' }}>{entry.avgMonthlyHours}h</span>
                             </div>
-                            <div className="text-xs text-slate-300">
-                              Trend: <span className={`font-medium ${entry.trend > 0 ? 'text-green-300' : entry.trend < 0 ? 'text-red-300' : 'text-slate-300'}`}>
+                            <div className="text-xs" style={{ color: uiTheme.muted }}>
+                              Trend: <span 
+                                className="font-medium"
+                                style={{ color: entry.trend > 0 ? '#86efac' : entry.trend < 0 ? '#fca5a5' : uiTheme.muted }}
+                              >
                                 {entry.trend > 0 ? '+' : ''}{entry.trend}h
                               </span>
                             </div>
-                            <div className="text-xs text-slate-300">
-                              Share: <span className="text-purple-300 font-medium">{percentage}%</span>
+                            <div className="text-xs" style={{ color: uiTheme.muted }}>
+                              Share: <span className="font-medium" style={{ color: '#c4b5fd' }}>{percentage}%</span>
                             </div>
                           </div>
                         </div>
@@ -320,18 +349,18 @@ export default function ProjectTypeTrend({ filteredRows }) {
       </div>
       
       {/* Project Type Summary Bars */}
-      <div className="mb-6 overflow-hidden"> {/* Added overflow-hidden to prevent chart from going outside card */}
+      <div className="mb-6">
         {/* Enhanced HTML-based bar chart */}
-        <div className="mb-6 p-4 rounded overflow-hidden"> {/* Removed background */}
+        <div className="mb-6 p-4 rounded"> {/* Removed background */}
           <h4 className="oryx-heading text-lg mb-6">Project Type Summary (Interactive Chart)</h4>
-          <div className="space-y-4 overflow-hidden"> {/* Added overflow-hidden */}
+          <div className="space-y-4">
             {projectTypeSummary.map((entry, index) => {
               const maxHours = Math.max(...projectTypeSummary.map(b => b.totalHours))
               const barWidth = (entry.totalHours / maxHours) * 100
               const percentage = ((entry.totalHours / projectTypeSummary.reduce((sum, item) => sum + item.totalHours, 0)) * 100).toFixed(1)
               
               return (
-                <div key={index} className="group overflow-hidden"> {/* Added overflow-hidden */}
+                <div key={index} className="group">
                   <div className="flex items-center space-x-3 mb-2"> {/* Increased margin bottom */}
                     <div className="w-48 text-xs text-slate-300 truncate group-hover:text-blue-300 transition-colors">
                       {entry.projectType}
@@ -345,35 +374,54 @@ export default function ProjectTypeTrend({ filteredRows }) {
                     <div className="w-48 text-xs text-slate-400 group-hover:text-slate-300 transition-colors">
                       {entry.avgMonthlyHours}h/month avg
                     </div>
-                    <div className="flex-1 bg-slate-700 rounded h-10 relative overflow-hidden cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg max-w-full"> {/* Added max-w-full */}
+                    <div 
+                      className="flex-1 bg-slate-700 rounded h-10 relative cursor-pointer transform transition-all duration-300 hover:scale-[1.02] hover:shadow-lg max-w-full"
+                      onMouseEnter={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const x = e.clientX - rect.left
+                        setHoverInfo({ index, x })
+                      }}
+                      onMouseMove={(e) => {
+                        const rect = e.currentTarget.getBoundingClientRect()
+                        const x = e.clientX - rect.left
+                        setHoverInfo({ index, x })
+                      }}
+                      onMouseLeave={() => setHoverInfo({ index: null, x: 0 })}
+                    >
                       <div 
                         className="h-full rounded bg-gradient-to-r from-blue-500 to-blue-600 transition-all duration-300 group-hover:from-blue-400 group-hover:to-blue-500"
                         style={{ width: `${barWidth}%` }}
                       />
-                      
-                      {/* Hover overlay with detailed info */}
-                      <div className="absolute inset-0 flex items-center justify-end pr-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"> {/* Added pointer-events-none */}
-                        <div className="bg-slate-800/90 rounded-lg px-3 py-2 shadow-xl border border-slate-600 z-10"> {/* Added z-10 */}
-                          <div className="text-xs font-medium text-white whitespace-nowrap">
+
+                      {/* Hover overlay with detailed info (Stone styled, follows cursor) */}
+                      <div 
+                        className="absolute bottom-full mb-2 opacity-0 group-hover:opacity-100 transition-opacity duration-100 pointer-events-none z-50"
+                        style={{ left: hoverInfo.index === index ? `${hoverInfo.x}px` : '0px', transform: 'translateX(-50%)' }}
+                      >
+                        <div 
+                          className="rounded-lg px-3 py-2 shadow-xl border"
+                          style={{ backgroundColor: uiTheme.chart.tooltipBg, borderColor: uiTheme.chart.tooltipBorder }}
+                        >
+                          <div className="text-xs font-medium whitespace-nowrap" style={{ color: uiTheme.chart.tooltipText }}>
                             {entry.projectType}
                           </div>
-                          <div className="text-xs text-slate-300">
-                            Total: <span className="text-blue-300 font-medium">{entry.totalHours}h</span>
+                          <div className="text-xs" style={{ color: uiTheme.muted }}>
+                            Total: <span className="font-medium" style={{ color: uiTheme.secondary }}>{entry.totalHours}h</span>
                           </div>
-                          <div className="text-xs text-slate-300">
-                            Monthly: <span className="text-green-300 font-medium">{entry.avgMonthlyHours}h</span>
+                          <div className="text-xs" style={{ color: uiTheme.muted }}>
+                            Monthly: <span className="font-medium" style={{ color: '#84cc16' }}>{entry.avgMonthlyHours}h</span>
                           </div>
-                          <div className="text-xs text-slate-300">
-                            Trend: <span className={`font-medium ${entry.trend > 0 ? 'text-green-300' : entry.trend < 0 ? 'text-red-300' : 'text-slate-300'}`}>
+                          <div className="text-xs" style={{ color: uiTheme.muted }}>
+                            Trend: <span className="font-medium" style={{ color: entry.trend > 0 ? '#86efac' : entry.trend < 0 ? '#fca5a5' : uiTheme.muted }}>
                               {entry.trend > 0 ? '+' : ''}{entry.trend}h
                             </span>
                           </div>
-                          <div className="text-xs text-slate-300">
-                            Share: <span className="text-purple-300 font-medium">{percentage}%</span>
+                          <div className="text-xs" style={{ color: uiTheme.muted }}>
+                            Share: <span className="font-medium" style={{ color: '#c4b5fd' }}>{percentage}%</span>
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Hours label */}
                       <div className="absolute inset-0 flex items-center justify-end pr-2">
                         <span className="text-xs text-white font-medium drop-shadow-lg">

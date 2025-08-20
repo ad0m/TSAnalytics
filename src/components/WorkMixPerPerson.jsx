@@ -4,10 +4,32 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Respo
 const WORK_TYPE_COLORS = {
   'Tech Delivery': '#22d3ee',
   'PM Delivery': '#84cc16', 
-  'Pre-Sales': '#a78bfa',
-  'Internal Admin': '#fb7185',
-  'Internal Support': '#fbbf24',
+  'Internal Admin': '#f59e0b',
+  'Leave/Bank Holiday': '#191970',
+  'Sick Leave': '#ef4444',
+  'Training': '#14b8a6',
   'Other': '#9ca3af'
+}
+
+// Map raw work types coming from data to standardized labels used in the chart
+const WORK_TYPE_MAP = {
+  'Admin': 'Internal Admin',
+  'Bank/Holiday Leave': 'Leave/Bank Holiday',
+  'Internal Support': 'Internal Admin',
+  'Internal Support, Projects & Documentation': 'Internal Admin',
+  'Project Installation & Engineering': 'Tech Delivery',
+  'Project Management': 'PM Delivery',
+  'Sick Leave': 'Sick Leave',
+  'Training': 'Training'
+}
+
+function normalizeWorkType(rawWorkType) {
+  const original = (rawWorkType || '').trim()
+  const mapped = WORK_TYPE_MAP[original] || original
+  // Prefer the mapped label if it exists in colors, else fallback to original if known, else Other
+  if (WORK_TYPE_COLORS[mapped]) return mapped
+  if (WORK_TYPE_COLORS[original]) return original
+  return 'Other'
 }
 
 export default function WorkMixPerPerson({ filteredRows }) {
@@ -19,7 +41,7 @@ export default function WorkMixPerPerson({ filteredRows }) {
     
     for (const row of filteredRows) {
       const member = row.Member || 'Unknown'
-      const workType = row.boardWorkType || 'Other'
+      const workType = normalizeWorkType(row.boardWorkType || 'Other')
       const hours = row.Hours
       
       if (!memberWorkTypeData[member]) {

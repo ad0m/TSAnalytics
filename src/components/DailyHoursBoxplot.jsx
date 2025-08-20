@@ -272,12 +272,13 @@ export default function DailyHoursBoxplot({ filteredRows }) {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="space-y-1 text-slate-300">
+            <p><strong className="text-sky-400">📘 Legend:</strong></p>
             <p><span className="inline-block w-3 h-3 bg-slate-600 border border-slate-500 mr-2"></span><strong>Box:</strong> Middle 50% of daily hours (Q1-Q3)</p>
             <p><span className="inline-block w-3 h-1 bg-lime-400 mr-2"></span><strong>Green Line:</strong> Median (typical daily hours)</p>
             <p><span className="inline-block w-1 h-3 bg-slate-400 mr-2"></span><strong>Whiskers:</strong> Min/max daily hours worked</p>
           </div>
           <div className="space-y-1 text-slate-300">
-            <p><strong className="text-lime-400">💡 Insights:</strong></p>
+            <p><strong className="font-semibold" style={{ color: '#B5C933' }}>💡 Insights:</strong></p>
             <p>• <strong>Narrow box:</strong> Consistent daily hours</p>
             <p>• <strong>Wide box:</strong> Variable workload</p>
             <p>• <strong>Long whiskers:</strong> Extreme work days</p>

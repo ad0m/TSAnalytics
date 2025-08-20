@@ -56,7 +56,7 @@ export default function HoursByPerson({ filteredRows }) {
   }
   
   // Calculate dynamic height based on number of people
-  const chartHeight = Math.max(400, data.length * 35)
+  const chartHeight = Math.max(420, data.length * 35)
   
   return (
     <div className="oryx-card p-6">
@@ -66,7 +66,7 @@ export default function HoursByPerson({ filteredRows }) {
           <BarChart 
             data={data} 
             layout="vertical" 
-            margin={{ left: 12, right: 100, top: 8, bottom: 8 }}
+            margin={{ left: 12, right: 100, top: 8, bottom: 36 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis 

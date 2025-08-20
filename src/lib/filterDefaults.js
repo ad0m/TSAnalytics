@@ -11,7 +11,15 @@ export const FILTER_DEFAULTS = {
   members: "ALL",
   companies: "ALL",
   projectTypes: "ALL",
-  workTypesBoard: ["Tech Delivery", "PM Delivery", "Pre-Sales", "Internal Admin", "Internal Support", "Other"],
+  workTypesBoard: [
+    "Tech Delivery",
+    "PM Delivery",
+    "Internal Admin",
+    "Leave/Bank Holiday",
+    "Sick Leave",
+    "Training",
+    "Other"
+  ],
   productivity: "All" // All | Productive | Unproductive
 }
 

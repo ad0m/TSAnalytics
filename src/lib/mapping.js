@@ -26,12 +26,22 @@ export const LEGACY_COLUMN_MAPPING = {
 
 // Work Type to Board category mapping
 export const WORK_TYPE_TO_BOARD = {
+  // Delivery
   "Project Installation & Engineering": "Tech Delivery",
   "Project Management": "PM Delivery", 
-  "Solutions & Scoping": "Pre-Sales",
+  // "Solutions & Scoping": "Pre-Sales", // deprecated
+
+  // Internal/Admin
   "Admin": "Internal Admin",
-  "Internal Support, Projects & Documents": "Internal Support",
-  "Internal Support & Projects": "Internal Support"
+  "Internal Support": "Internal Admin",
+  "Internal Support & Projects": "Internal Admin",
+  "Internal Support, Projects & Documents": "Internal Admin",
+  "Internal Support, Projects & Documentation": "Internal Admin",
+
+  // Leave & Training
+  "Bank/Holiday Leave": "Leave/Bank Holiday",
+  "Sick Leave": "Sick Leave",
+  "Training": "Training"
   // Default for unmapped types: "Other"
 }
 
