@@ -5,6 +5,26 @@ import { uiTheme } from '../theme'
 
 export default function ProjectTypeTrend({ filteredRows }) {
   const [hoverInfo, setHoverInfo] = useState({ index: null, x: 0 })
+  
+  // Custom color palette for tooltip values
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+  
   const { monthlyData, projectTypeSummary, topProjectTypes, yAxisDomain } = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return { monthlyData: [], projectTypeSummary: [], topProjectTypes: [], yAxisDomain: [0, 100] }
     
@@ -96,26 +116,26 @@ export default function ProjectTypeTrend({ filteredRows }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
       
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: uiTheme.surface, 
+            backgroundColor: '#586961', 
             borderColor: uiTheme.muted,
             color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium mb-2" style={{ textShadow }}>{label}</p>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
           <div className="space-y-1">
             {payload
               .filter(item => item.value > 0)
               .sort((a, b) => b.value - a.value)
               .map((item, index) => (
                 <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
-                  <span style={{ color: '#64748b' }}>{item.dataKey}:</span>
-                  <span className="font-semibold" style={{ color: item.color }}>{item.value}h</span>
+                  <span style={{ color: '#EFECD2' }}>{item.dataKey}:</span>
+                  <span className="font-bold" style={{ color: tooltipColors[index % tooltipColors.length] }}>{item.value}h</span>
                 </div>
               ))}
           </div>
@@ -205,29 +225,29 @@ export default function ProjectTypeTrend({ filteredRows }) {
                           <div 
                             className="rounded-lg px-3 py-2 shadow-xl border"
                             style={{ 
-                              backgroundColor: uiTheme.chart.tooltipBg,
+                              backgroundColor: '#586961',
                               borderColor: uiTheme.chart.tooltipBorder
                             }}
                           >
-                            <div className="text-xs font-medium whitespace-nowrap" style={{ color: uiTheme.chart.tooltipText }}>
+                            <div className="text-xs font-semibold whitespace-nowrap" style={{ color: '#B5C933', textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
                               {entry.projectType}
                             </div>
                             <div className="text-xs" style={{ color: uiTheme.muted }}>
-                              Total: <span className="font-medium" style={{ color: uiTheme.secondary }}>{entry.totalHours}h</span>
+                              Total: <span className="font-bold" style={{ color: tooltipColors[0] }}>{entry.totalHours}h</span>
                             </div>
                             <div className="text-xs" style={{ color: uiTheme.muted }}>
-                              Monthly: <span className="font-medium" style={{ color: '#84cc16' }}>{entry.avgMonthlyHours}h</span>
+                              Monthly: <span className="font-bold" style={{ color: tooltipColors[1] }}>{entry.avgMonthlyHours}h</span>
                             </div>
                             <div className="text-xs" style={{ color: uiTheme.muted }}>
                               Trend: <span 
-                                className="font-medium"
-                                style={{ color: entry.trend > 0 ? '#86efac' : entry.trend < 0 ? '#fca5a5' : uiTheme.muted }}
+                                className="font-bold"
+                                style={{ color: entry.trend > 0 ? tooltipColors[2] : entry.trend < 0 ? tooltipColors[3] : tooltipColors[4] }}
                               >
                                 {entry.trend > 0 ? '+' : ''}{entry.trend}h
                               </span>
                             </div>
                             <div className="text-xs" style={{ color: uiTheme.muted }}>
-                              Share: <span className="font-medium" style={{ color: '#c4b5fd' }}>{percentage}%</span>
+                              Share: <span className="font-bold" style={{ color: tooltipColors[5] }}>{percentage}%</span>
                             </div>
                           </div>
                         </div>
@@ -403,24 +423,30 @@ export default function ProjectTypeTrend({ filteredRows }) {
                       >
                         <div 
                           className="rounded-lg px-3 py-2 shadow-xl border"
-                          style={{ backgroundColor: uiTheme.chart.tooltipBg, borderColor: uiTheme.chart.tooltipBorder }}
+                          style={{ backgroundColor: '#586961', borderColor: uiTheme.muted }}
                         >
-                          <div className="text-xs font-medium whitespace-nowrap" style={{ color: uiTheme.chart.tooltipText }}>
+                          <div className="text-xs font-semibold whitespace-nowrap mb-2" style={{ color: '#B5C933', textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
                             {entry.projectType}
                           </div>
-                          <div className="text-xs" style={{ color: uiTheme.muted }}>
-                            Total: <span className="font-medium" style={{ color: uiTheme.secondary }}>{entry.totalHours}h</span>
-                          </div>
-                          <div className="text-xs" style={{ color: uiTheme.muted }}>
-                            Monthly: <span className="font-medium" style={{ color: '#84cc16' }}>{entry.avgMonthlyHours}h</span>
-                          </div>
-                          <div className="text-xs" style={{ color: uiTheme.muted }}>
-                            Trend: <span className="font-medium" style={{ color: entry.trend > 0 ? '#86efac' : entry.trend < 0 ? '#fca5a5' : uiTheme.muted }}>
-                              {entry.trend > 0 ? '+' : ''}{entry.trend}h
-                            </span>
-                          </div>
-                          <div className="text-xs" style={{ color: uiTheme.muted }}>
-                            Share: <span className="font-medium" style={{ color: '#c4b5fd' }}>{percentage}%</span>
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-center text-xs" style={{ textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
+                              <span style={{ color: '#EFECD2' }}>Total:</span>
+                              <span className="font-bold" style={{ color: tooltipColors[0] }}>{entry.totalHours}h</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs" style={{ textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
+                              <span style={{ color: '#EFECD2' }}>Monthly:</span>
+                              <span className="font-bold" style={{ color: tooltipColors[1] }}>{entry.avgMonthlyHours}h</span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs" style={{ textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
+                              <span style={{ color: '#EFECD2' }}>Trend:</span>
+                              <span className="font-bold" style={{ color: entry.trend > 0 ? tooltipColors[2] : entry.trend < 0 ? tooltipColors[3] : tooltipColors[4] }}>
+                                {entry.trend > 0 ? '+' : ''}{entry.trend}h
+                              </span>
+                            </div>
+                            <div className="flex justify-between items-center text-xs" style={{ textShadow: '0 1px 1px rgba(0,0,0,0.5)' }}>
+                              <span style={{ color: '#EFECD2' }}>Share:</span>
+                              <span className="font-bold" style={{ color: tooltipColors[5] }}>{percentage}%</span>
+                            </div>
                           </div>
                         </div>
                       </div>
