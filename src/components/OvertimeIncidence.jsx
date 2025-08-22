@@ -1,15 +1,9 @@
 import React, { useMemo, useRef } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts'
 import { toBlob } from 'html-to-image'
 import { Download } from 'lucide-react'
-import dayjs from 'dayjs'
-import isoWeek from 'dayjs/plugin/isoWeek'
 import { uiTheme } from '../theme'
-
-dayjs.extend(isoWeek)
-
-// Overtime rules
-const OVERTIME_DAILY_THRESHOLD = 7.5
+import { computeWeeklyOvertime } from '../lib/computeOvertime.js'
 
 export default function OvertimeIncidence({ filteredRows }) {
   const ref = useRef(null)
@@ -20,119 +14,74 @@ export default function OvertimeIncidence({ filteredRows }) {
       
       if (!filteredRows || filteredRows.length === 0) return []
       
-      // Group by member, week, and date to calculate daily hours
-      const memberWeeklyData = {}
+      // Use the new overtime computation logic
+      const weeklyOvertimeData = computeWeeklyOvertime(filteredRows)
       
-      for (const row of filteredRows) {
-        const member = row.Member || 'Unknown'
+      // Group by week for chart data
+      const weekGroups = {}
+      const allMembers = new Set()
+      
+      for (const weekData of weeklyOvertimeData) {
+        const { member, isoWeek, overtime } = weekData
         
-        // Skip rows without valid dateObj
-        if (!row.dateObj) {
-          console.log('OvertimeIncidence - Skipping row without dateObj:', row)
-          continue
+        allMembers.add(member)
+        
+        if (!weekGroups[isoWeek]) {
+          weekGroups[isoWeek] = {}
         }
         
-        const date = dayjs(row.dateObj)
-        if (!date.isValid()) {
-          console.log('OvertimeIncidence - Skipping row with invalid date:', row)
-          continue
-        }
-        
-        const week = date.format('YYYY-[W]WW') // ISO week format
-      const dateKey = date.format('YYYY-MM-DD')
-      const isWeekend = date.isoWeekday() >= 6 // Saturday=6, Sunday=7
-      
-      if (!memberWeeklyData[member]) {
-        memberWeeklyData[member] = {}
-      }
-      
-      if (!memberWeeklyData[member][week]) {
-        memberWeeklyData[member][week] = {}
-      }
-      
-      if (!memberWeeklyData[member][week][dateKey]) {
-        memberWeeklyData[member][week][dateKey] = {
-          hours: 0,
-          isWeekend
+        weekGroups[isoWeek][member] = {
+          dailyWeekday: overtime.dailyWeekday,
+          weeklyOverflow: overtime.weeklyOverflow,
+          weekendHoliday: overtime.weekendHoliday,
+          total: overtime.total
         }
       }
       
-      memberWeeklyData[member][week][dateKey].hours += row.Hours
-    }
-    
-    // Calculate overtime incidents per member per week
-    const weeklyOvertimeData = {}
-    
-    for (const [member, weeklyData] of Object.entries(memberWeeklyData)) {
-      for (const [week, dailyData] of Object.entries(weeklyData)) {
-        if (!weeklyOvertimeData[week]) {
-          weeklyOvertimeData[week] = {}
-        }
-        
-        if (!weeklyOvertimeData[week][member]) {
-          weeklyOvertimeData[week][member] = {
-            weekdayOT: 0,
-            weekendOT: 0
+      // Calculate total overtime hours per member to find top contributors
+      const memberTotals = {}
+      for (const member of allMembers) {
+        memberTotals[member] = 0
+        Object.values(weekGroups).forEach(weekData => {
+          const memberData = weekData[member]
+          if (memberData) {
+            memberTotals[member] += memberData.total
           }
-        }
-        
-        // Count overtime incidents for this member in this week
-        for (const [dateKey, dayData] of Object.entries(dailyData)) {
-          const isOvertime = dayData.hours > OVERTIME_DAILY_THRESHOLD || (dayData.isWeekend && dayData.hours > 0)
-          
-          if (isOvertime) {
-            if (dayData.isWeekend) {
-              weeklyOvertimeData[week][member].weekendOT += 1
-            } else {
-              weeklyOvertimeData[week][member].weekdayOT += 1
-            }
-          }
-        }
-      }
-    }
-    
-    // Convert to chart data format (show top contributors only)
-    const allMembers = new Set()
-    Object.values(weeklyOvertimeData).forEach(weekData => {
-      Object.keys(weekData).forEach(member => allMembers.add(member))
-    })
-    
-    // Calculate total overtime incidents per member to find top contributors
-    const memberTotals = {}
-    for (const member of allMembers) {
-      memberTotals[member] = 0
-      Object.values(weeklyOvertimeData).forEach(weekData => {
-        const memberData = weekData[member]
-        if (memberData) {
-          memberTotals[member] += memberData.weekdayOT + memberData.weekendOT
-        }
-      })
-    }
-    
-    // Get top 10 members by overtime incidents
-    const topMembers = Object.entries(memberTotals)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10)
-      .map(([member]) => member)
-    
-    // Build chart data
-    const chartData = Object.entries(weeklyOvertimeData)
-      .map(([week, memberData]) => {
-        const weekEntry = { week }
-        
-        topMembers.forEach(member => {
-          const data = memberData[member] || { weekdayOT: 0, weekendOT: 0 }
-          weekEntry[`${member}_weekday`] = data.weekdayOT
-          weekEntry[`${member}_weekend`] = data.weekendOT
         })
-        
-        return weekEntry
-      })
-      .sort((a, b) => a.week.localeCompare(b.week))
-      .slice(-12) // Show last 12 weeks for readability
-    
-    return { chartData, topMembers }
-    
+      }
+      
+      // Get top 10 members by overtime hours
+      const topMembers = Object.entries(memberTotals)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 10)
+        .map(([member]) => member)
+      
+      // Build chart data - limit to 9 weeks for better readability
+      const chartData = Object.entries(weekGroups)
+        .map(([isoWeek, memberData]) => {
+          const weekEntry = { week: isoWeek }
+          
+          // Add total overtime for the week
+          let weekTotal = 0
+          topMembers.forEach(member => {
+            const data = memberData[member] || { 
+              dailyWeekday: 0, 
+              weeklyOverflow: 0, 
+              weekendHoliday: 0, 
+              total: 0 
+            }
+            weekEntry[`${member}_total`] = data.total
+            weekTotal += data.total
+          })
+          
+          weekEntry.total = weekTotal
+          return weekEntry
+        })
+        .sort((a, b) => a.week.localeCompare(b.week))
+        .slice(-9) // Show last 9 weeks for better readability
+      
+      return { chartData, topMembers }
+      
     } catch (error) {
       console.error('OvertimeIncidence - Error:', error)
       return { chartData: [], topMembers: [] }
@@ -174,23 +123,24 @@ export default function OvertimeIncidence({ filteredRows }) {
           <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
             Week {label}
           </p>
-          <div className="space-y-1">
-            {payload
-              .filter(item => item.value > 0)
-              .map((item, index) => {
-                const [member, type] = item.dataKey.split('_')
-                return (
-                  <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
-                    <span style={{ color: '#EFECD2' }}>
-                      {member} ({type === 'weekday' ? 'Weekday' : 'Weekend'}):
-                    </span>
-                    <span className="font-bold" style={{ color: item.color }}>
-                      {item.value} incidents
-                    </span>
-                  </div>
-                )
-              })}
-          </div>
+                     <div className="space-y-1">
+             {payload
+               .filter(item => item.value > 0)
+               .map((item, index) => {
+                 const member = item.dataKey.replace('_total', '')
+                 
+                 return (
+                   <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                     <span style={{ color: '#EFECD2' }}>
+                       {member}:
+                     </span>
+                     <span className="font-bold" style={{ color: item.color }}>
+                       {item.value} hours
+                     </span>
+                   </div>
+                 )
+               })}
+           </div>
         </div>
       )
     }
@@ -232,8 +182,8 @@ export default function OvertimeIncidence({ filteredRows }) {
             <Download size={16} /> Export PNG
           </button>
         </div>
-        <div className="flex h-80 items-center justify-center text-sm text-slate-400">
-          No overtime incidents found
+        <div className="flex h-96 items-center justify-center text-sm text-slate-400">
+          No overtime hours found
         </div>
       </div>
     )
@@ -257,58 +207,91 @@ export default function OvertimeIncidence({ filteredRows }) {
         >
           <Download size={16} /> Export PNG
         </button>
-      </div>
-      <div className="h-80 rounded-lg p-3">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart 
-            data={data.chartData} 
-            margin={{ left: 8, right: 16, top: 8, bottom: 24 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-            <XAxis 
-              dataKey="week" 
-              tick={{ fill: '#cbd5e1', fontSize: 10 }}
-              angle={-45}
-              textAnchor="end"
-              height={60}
-            />
-            <YAxis 
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
-              label={{ 
-                value: 'Overtime Incidents', 
-                angle: -90, 
-                position: 'insideLeft', 
-                style: { fill: '#cbd5e1' } 
-              }}
-            />
-            <ReTooltip content={<CustomTooltip />} />
-            <Legend />
-            
-            {data.topMembers.map((member, index) => (
-              <React.Fragment key={member}>
-                <Bar 
-                  dataKey={`${member}_weekday`}
-                  stackId={member}
-                  name={`${member} (Weekday)`}
-                  fill={memberColors[index % memberColors.length]}
-                  fillOpacity={0.8}
-                />
-                <Bar 
-                  dataKey={`${member}_weekend`}
-                  stackId={member}
-                  name={`${member} (Weekend)`}
-                  fill={memberColors[index % memberColors.length]}
-                  fillOpacity={1}
-                />
-              </React.Fragment>
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-      <div className="mt-4 space-y-1 text-center text-xs text-slate-400">
-        <p>Shows weekly overtime incidents (days &gt;7.5h or any weekend hours)</p>
-        <p>Darker shades = weekend, lighter = weekday. Top 10 contributors shown.</p>
-      </div>
+               </div>
+         
+         {/* Summary breakdown section */}
+         <div className="mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+           <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+             <div className="text-center">
+               <div className="text-2xl font-bold text-lime-400">
+                 {data.topMembers.length > 0 ? 
+                   Math.round(data.chartData.reduce((sum, week) => sum + week.total, 0) / data.chartData.length) : 0
+                 }
+               </div>
+               <div className="text-xs text-slate-400">Avg Weekly OT Hours</div>
+             </div>
+           </div>
+           <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+             <div className="text-center">
+               <div className="text-2xl font-bold text-orange-400">
+                 {data.topMembers.length > 0 ? 
+                   data.topMembers[0] : 'N/A'
+                 }
+               </div>
+               <div className="text-xs text-slate-400">Top Contributor</div>
+             </div>
+           </div>
+           <div className="bg-slate-800/50 rounded-lg p-3 border border-slate-700">
+             <div className="text-center">
+               <div className="text-2xl font-bold text-cyan-400">
+                 {data.chartData.length}
+               </div>
+               <div className="text-xs text-slate-400">Weeks Shown</div>
+             </div>
+           </div>
+         </div>
+         
+         <div className="h-96 rounded-lg p-3">
+         <ResponsiveContainer width="100%" height="100%">
+           <BarChart 
+             data={data.chartData} 
+             margin={{ left: 8, right: 16, top: 16, bottom: 40 }}
+             barSize={35}
+           >
+             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+             <XAxis 
+               dataKey="week" 
+               tick={{ fill: '#cbd5e1', fontSize: 11 }}
+               tickLine={{ stroke: '#475569' }}
+               axisLine={{ stroke: '#475569' }}
+               angle={-45}
+               textAnchor="end"
+               height={60}
+             />
+             <YAxis 
+               tick={{ fill: '#cbd5e1', fontSize: 12 }}
+               tickLine={{ stroke: '#475569' }}
+               axisLine={{ stroke: '#475569' }}
+               label={{ 
+                 value: 'Overtime Hours', 
+                 angle: -90, 
+                 position: 'insideLeft', 
+                 style: { fill: '#cbd5e1' } 
+               }}
+             />
+             <ReTooltip content={<CustomTooltip />} />
+             <Legend />
+             
+             {/* Main overtime bars - one per member */}
+             {data.topMembers.map((member, index) => (
+               <Bar 
+                 key={member}
+                 dataKey={`${member}_total`}
+                 name={member}
+                 fill={memberColors[index % memberColors.length]}
+                 fillOpacity={0.9}
+                 radius={[4, 4, 0, 0]}
+                 stroke={memberColors[index % memberColors.length]}
+                 strokeWidth={1}
+               />
+             ))}
+           </BarChart>
+         </ResponsiveContainer>
+       </div>
+             <div className="mt-4 space-y-1 text-center text-xs text-slate-400">
+         <p>Shows weekly total overtime hours per person. Each bar represents one person's total overtime for that week.</p>
+         <p>Top 10 overtime contributors shown. Limited to last 9 weeks for better readability.</p>
+       </div>
     </div>
   )
 }
