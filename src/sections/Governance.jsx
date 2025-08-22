@@ -1,5 +1,4 @@
 import AdminMeetingsTrend from '../components/AdminMeetingsTrend.jsx'
-import LatePostingImpact from '../components/LatePostingImpact.jsx'
 import OvertimeIncidence from '../components/OvertimeIncidence.jsx'
 import OutlierDaysTable from '../components/OutlierDaysTable.jsx'
 
@@ -23,11 +22,6 @@ export default function Governance({ filteredRows }) {
           <AdminMeetingsTrend filteredRows={filteredRows} />
         </section>
 
-        {/* LatePostingImpact */}
-        <section>
-          <LatePostingImpact filteredRows={filteredRows} />
-        </section>
-
         {/* OvertimeIncidence */}
         <section>
           <OvertimeIncidence filteredRows={filteredRows} />
@@ -39,7 +33,7 @@ export default function Governance({ filteredRows }) {
         */}
         
         <div className="text-center text-yellow-400 py-4 text-sm">
-          🚧 Debug Mode: Testing AdminMeetingsTrend + LatePostingImpact + OvertimeIncidence
+          🚧 Debug Mode: Testing AdminMeetingsTrend + OvertimeIncidence
         </div>
       </div>
     )

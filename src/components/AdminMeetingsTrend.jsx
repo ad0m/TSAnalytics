@@ -7,6 +7,25 @@ import { uiTheme } from '../theme'
 export default function AdminMeetingsTrend({ filteredRows }) {
   const ref = useRef(null)
   
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const data = useMemo(() => {
     try {
       console.log('AdminMeetingsTrend - Processing', filteredRows?.length, 'rows')
@@ -84,48 +103,48 @@ export default function AdminMeetingsTrend({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0]?.payload
-      const textShadow = '0 1px 1px rgba(0,0,0,0.4)'
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
       
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: uiTheme.surface, 
+            backgroundColor: '#586961', 
             borderColor: uiTheme.muted,
             color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium mb-2" style={{ textShadow }}>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
             {label}
           </p>
           <div className="space-y-1">
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Admin - Internal Meeting:</span>
-              <span className="font-semibold" style={{ color: '#012A2D' }}>{data?.adminMeetingHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Admin - Internal Meeting:</span>
+              <span className="font-bold" style={{ color: tooltipColors[0] }}>{data?.adminMeetingHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Admin:</span>
-              <span className="font-semibold" style={{ color: '#B5C933' }}>{data?.adminHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Admin:</span>
+              <span className="font-bold" style={{ color: tooltipColors[1] }}>{data?.adminHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Training:</span>
-              <span className="font-semibold" style={{ color: '#EFECD2' }}>{data?.trainingHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Training:</span>
+              <span className="font-bold" style={{ color: tooltipColors[2] }}>{data?.trainingHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Bank/Holiday Leave:</span>
-              <span className="font-semibold" style={{ color: '#586961' }}>{data?.bankHolidayLeaveHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Bank/Holiday Leave:</span>
+              <span className="font-bold" style={{ color: tooltipColors[3] }}>{data?.bankHolidayLeaveHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Sick Leave:</span>
-              <span className="font-semibold" style={{ color: '#8B9DC3' }}>{data?.sickLeaveHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Sick Leave:</span>
+              <span className="font-bold" style={{ color: tooltipColors[4] }}>{data?.sickLeaveHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Total Hours:</span>
-              <span className="font-semibold" style={{ color: uiTheme.chart.tooltipText }}>{data?.totalHours}h</span>
+              <span style={{ color: '#EFECD2' }}>Total Hours:</span>
+              <span className="font-bold" style={{ color: tooltipColors[5] }}>{data?.totalHours}h</span>
             </div>
             <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
-              <span style={{ color: '#64748b' }}>Admin Share:</span>
-              <span className="font-semibold" style={{ color: '#FF4F00' }}>{data?.adminPercentage}%</span>
+              <span style={{ color: '#EFECD2' }}>Admin Share:</span>
+              <span className="font-bold" style={{ color: tooltipColors[6] }}>{data?.adminPercentage}%</span>
             </div>
           </div>
         </div>
@@ -233,40 +252,40 @@ export default function AdminMeetingsTrend({ filteredRows }) {
               yAxisId="hours"
               dataKey="adminMeetingHours" 
               name="Admin - Internal Meeting"
-              fill="#012A2D"
+              fill={tooltipColors[0]}
             />
             <Bar 
               yAxisId="hours"
               dataKey="adminHours" 
               name="Admin"
-              fill="#B5C933"
+              fill={tooltipColors[1]}
             />
             <Bar 
               yAxisId="hours"
               dataKey="trainingHours" 
               name="Training"
-              fill="#EFECD2"
+              fill={tooltipColors[2]}
             />
             <Bar 
               yAxisId="hours"
               dataKey="bankHolidayLeaveHours" 
               name="Bank/Holiday Leave"
-              fill="#586961"
+              fill={tooltipColors[3]}
             />
             <Bar 
               yAxisId="hours"
               dataKey="sickLeaveHours" 
               name="Sick Leave"
-              fill="#8B9DC3"
+              fill={tooltipColors[4]}
             />
             <Line 
               yAxisId="percentage"
               type="monotone" 
               dataKey="adminPercentage" 
               name="Admin Share %"
-              stroke="#FF4F00" 
+              stroke={tooltipColors[6]} 
               strokeWidth={3}
-              dot={{ r: 4, fill: '#FF4F00' }}
+              dot={{ r: 4, fill: tooltipColors[6] }}
               activeDot={{ r: 6 }}
             />
           </ComposedChart>

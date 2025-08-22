@@ -222,34 +222,35 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
                   // Get the color for this specific bar to use in tooltip
                   const barIndex = data.findIndex(item => item.project === barData.project)
                   const barColor = CUSTOM_COLORS[barIndex % CUSTOM_COLORS.length]
+                  const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
                   
                   return (
                     <div 
                       className="rounded-lg border p-3 shadow-2xl"
                       style={{ 
-                        backgroundColor: '#586961', // Smokey Sage
+                        backgroundColor: '#586961', 
                         borderColor: uiTheme.muted,
-                        textShadow: '0 1px 1px rgba(0,0,0,0.5)'
+                        color: uiTheme.chart.tooltipText
                       }}
                     >
-                      <p className="text-sm font-semibold mb-2" style={{ color: '#B5C933' }}>
+                      <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
                         Project: {barData.project}
                       </p>
                       
                       <div className="space-y-1">
-                        <div className="flex justify-between items-center text-xs">
+                        <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
                           <span style={{ color: '#EFECD2' }}>Hours:</span>
                           <span className="font-bold" style={{ color: barColor }}>{hours}h ({pct}%)</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
+                        <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
                           <span style={{ color: '#EFECD2' }}>Company:</span>
                           <span className="font-bold" style={{ color: barColor }}>{company}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
+                        <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
                           <span style={{ color: '#EFECD2' }}>PM/s:</span>
                           <span className="font-bold" style={{ color: barColor }}>{projectManager}</span>
                         </div>
-                        <div className="flex justify-between items-center text-xs">
+                        <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
                           <span style={{ color: '#EFECD2' }}>Engineer/s:</span>
                           <span className="font-bold" style={{ color: barColor }}>{engineers}</span>
                         </div>

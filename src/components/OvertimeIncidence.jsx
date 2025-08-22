@@ -4,6 +4,7 @@ import { toBlob } from 'html-to-image'
 import { Download } from 'lucide-react'
 import dayjs from 'dayjs'
 import isoWeek from 'dayjs/plugin/isoWeek'
+import { uiTheme } from '../theme'
 
 dayjs.extend(isoWeek)
 
@@ -138,21 +139,58 @@ export default function OvertimeIncidence({ filteredRows }) {
     }
   }, [filteredRows])
   
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
-        <div className="rounded-lg border border-slate-600 bg-slate-800 p-3 shadow-2xl">
-          <p className="text-sm font-medium text-white">Week {label}</p>
-          {payload
-            .filter(item => item.value > 0)
-            .map((item, index) => {
-              const [member, type] = item.dataKey.split('_')
-              return (
-                <p key={index} className="text-xs" style={{ color: item.color }}>
-                  {member} ({type === 'weekday' ? 'Weekday' : 'Weekend'}): {item.value} incidents
-                </p>
-              )
-            })}
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
+          }}
+        >
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
+            Week {label}
+          </p>
+          <div className="space-y-1">
+            {payload
+              .filter(item => item.value > 0)
+              .map((item, index) => {
+                const [member, type] = item.dataKey.split('_')
+                return (
+                  <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                    <span style={{ color: '#EFECD2' }}>
+                      {member} ({type === 'weekday' ? 'Weekday' : 'Weekend'}):
+                    </span>
+                    <span className="font-bold" style={{ color: item.color }}>
+                      {item.value} incidents
+                    </span>
+                  </div>
+                )
+              })}
+          </div>
         </div>
       )
     }
@@ -201,11 +239,8 @@ export default function OvertimeIncidence({ filteredRows }) {
     )
   }
   
-  // Generate colors for members
-  const memberColors = [
-    '#22d3ee', '#84cc16', '#a78bfa', '#fb7185', '#fbbf24', 
-    '#34d399', '#f472b6', '#60a5fa', '#f97316', '#10b981'
-  ]
+  // Generate colors for members using the tooltip palette
+  const memberColors = tooltipColors.slice(0, 10)
   
   return (
     <div ref={ref} className="oryx-card p-6">

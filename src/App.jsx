@@ -942,6 +942,25 @@ function ProjectTypeBars({ filteredRows, onExport, onReset }) {
 }
 
 function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const { series, teams } = useMemo(() => {
     try {
       console.log('WeeklyTeamTrend - Processing', filteredRows?.length, 'rows')
@@ -1001,7 +1020,6 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
     }
   }, [filteredRows])
   
-  const colors = ACCESSIBLE_COLORS
   const hasData = series.length > 0 && teams.length > 0
   
   return (
@@ -1015,12 +1033,36 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
             <XAxis dataKey="week" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <YAxis tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <ReTooltip 
-              formatter={(v, name) => [formatTooltipHours(Number(v)), name]}
-              contentStyle={{ 
-                backgroundColor: '#1e293b', 
-                border: '1px solid #475569', 
-                borderRadius: '8px',
-                color: '#cbd5e1'
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+                  
+                  return (
+                    <div 
+                      className="rounded-lg border p-3 shadow-2xl"
+                      style={{ 
+                        backgroundColor: '#586961', 
+                        borderColor: '#586961',
+                        color: '#EFECD2'
+                      }}
+                    >
+                      <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
+                        Week {label}
+                      </p>
+                      <div className="space-y-1">
+                        {payload.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                            <span style={{ color: '#EFECD2' }}>{item.name}:</span>
+                            <span className="font-bold" style={{ color: item.color }}>
+                              {formatTooltipHours(Number(item.value))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                return null
               }}
             />
             {teams.map((t, i) => (
@@ -1028,10 +1070,10 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
                 key={t} 
                 type="monotone" 
                 dataKey={t} 
-                stroke={colors[i % colors.length]} 
+                stroke={tooltipColors[i % tooltipColors.length]} 
                 strokeWidth={3} 
-                dot={{ r: 3, fill: colors[i % colors.length] }} 
-                activeDot={{ r: 5, fill: colors[i % colors.length] }} 
+                dot={{ r: 3, fill: tooltipColors[i % tooltipColors.length] }} 
+                activeDot={{ r: 5, fill: tooltipColors[i % tooltipColors.length] }} 
               />
             ))}
           </LineChart>
