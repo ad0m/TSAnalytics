@@ -3,6 +3,25 @@ import { ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReToo
 import { uiTheme } from '../theme'
 
 export default function ClientPareto({ filteredRows }) {
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
@@ -51,27 +70,34 @@ export default function ClientPareto({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: uiTheme.chart.tooltipBg, 
-            borderColor: uiTheme.chart.tooltipBorder,
-            color: uiTheme.chart.tooltipText 
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: uiTheme.chart.tooltipText }}>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
             {data.company}
           </p>
-          <p className="text-xs" style={{ color: uiTheme.muted }}>
-            Billable Hours: {data.hours}h
-          </p>
-          <p className="text-xs" style={{ color: uiTheme.muted }}>
-            Cumulative: {data.cumulativePercent}%
-          </p>
-          <p className="text-xs" style={{ color: uiTheme.muted }}>
-            Rank: #{data.rank}
-          </p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#EFECD2' }}>Billable Hours:</span>
+              <span className="font-bold" style={{ color: tooltipColors[0] }}>{data.hours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#EFECD2' }}>Cumulative:</span>
+              <span className="font-bold" style={{ color: tooltipColors[1] }}>{data.cumulativePercent}%</span>
+            </div>
+            <div className="flex justify-between items-center text-xs" style={{ textShadow }}>
+              <span style={{ color: '#EFECD2' }}>Rank:</span>
+              <span className="font-bold" style={{ color: tooltipColors[2] }}>#{data.rank}</span>
+            </div>
+          </div>
         </div>
       )
     }
@@ -138,7 +164,7 @@ export default function ClientPareto({ filteredRows }) {
             <Bar 
               yAxisId="hours"
               dataKey="hours" 
-              fill={uiTheme.primary}
+              fill={tooltipColors[0]}
               opacity={0.8}
             />
             
@@ -147,10 +173,10 @@ export default function ClientPareto({ filteredRows }) {
               yAxisId="percent"
               type="monotone" 
               dataKey="cumulativePercent" 
-              stroke={uiTheme.secondary} 
+              stroke={tooltipColors[1]} 
               strokeWidth={3}
-              dot={{ r: 3, fill: uiTheme.secondary }}
-              activeDot={{ r: 5, fill: uiTheme.secondary }}
+              dot={{ r: 3, fill: tooltipColors[1] }}
+              activeDot={{ r: 5, fill: tooltipColors[1] }}
             />
           </ComposedChart>
         </ResponsiveContainer>
@@ -158,11 +184,11 @@ export default function ClientPareto({ filteredRows }) {
       <div className="mt-4 space-y-2">
         <div className="flex items-center justify-center gap-6 text-xs" style={{ color: uiTheme.muted }}>
           <div className="flex items-center gap-2">
-            <div className="h-3 w-3 rounded" style={{ backgroundColor: uiTheme.primary }}></div>
+            <div className="h-3 w-3 rounded" style={{ backgroundColor: tooltipColors[0] }}></div>
             <span>Billable Hours</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="h-1 w-6 rounded" style={{ backgroundColor: uiTheme.secondary }}></div>
+            <div className="h-1 w-6 rounded" style={{ backgroundColor: tooltipColors[1] }}></div>
             <span>Cumulative %</span>
           </div>
           <div className="flex items-center gap-2">

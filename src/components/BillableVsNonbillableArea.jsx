@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer } from 'recharts'
 import dayjs from 'dayjs'
 import customParseFormat from 'dayjs/plugin/customParseFormat'
+import { uiTheme } from '../theme'
 
 dayjs.extend(customParseFormat)
 
@@ -11,6 +12,25 @@ const DATE_FORMATS = ['DD/MM/YYYY', 'D/M/YYYY', 'DD/MM/YY']
 export default function BillableVsNonbillableArea({ filteredRows }) {
   const componentId = Math.random().toString(36).substr(2, 9)
   
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
@@ -189,23 +209,34 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const total = payload.reduce((sum, entry) => sum + entry.value, 0)
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: '#EFECD2',
-            borderColor: '#586961'
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
-          {payload.reverse().map((entry, index) => (
-            <p key={index} className="text-xs" style={{ color: entry.color }}>
-              {entry.dataKey === 'billable' ? 'Billable' : 'Non-billable'}: {entry.value}h
-            </p>
-          ))}
-          <p className="text-xs border-t pt-1 mt-1" style={{ color: '#586961', borderColor: '#586961' }}>
-            Total: {total}h
-          </p>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
+          <div className="space-y-1">
+            {payload.reverse().map((entry, index) => (
+              <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                <span style={{ color: '#EFECD2' }}>
+                  {entry.dataKey === 'billable' ? 'Billable' : 'Non-billable'}:
+                </span>
+                <span className="font-bold" style={{ color: tooltipColors[index % tooltipColors.length] }}>
+                  {entry.value}h
+                </span>
+              </div>
+            ))}
+            <div className="flex justify-between items-center text-xs border-t pt-1 mt-1" style={{ textShadow, borderColor: uiTheme.muted }}>
+              <span style={{ color: '#EFECD2' }}>Total:</span>
+              <span className="font-bold" style={{ color: tooltipColors[2] }}>{total}h</span>
+            </div>
+          </div>
         </div>
       )
     }
@@ -231,12 +262,12 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
           <AreaChart data={data} margin={{ left: 8, right: 16, top: 8, bottom: 24 }}>
             <defs>
               <linearGradient id="billableGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#84cc16" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#84cc16" stopOpacity={0.2}/>
+                <stop offset="5%" stopColor={tooltipColors[0]} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={tooltipColors[0]} stopOpacity={0.2}/>
               </linearGradient>
               <linearGradient id="nonBillableGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="#ef4444" stopOpacity={0.8}/>
-                <stop offset="95%" stopColor="#ef4444" stopOpacity={0.2}/>
+                <stop offset="5%" stopColor={tooltipColors[1]} stopOpacity={0.8}/>
+                <stop offset="95%" stopColor={tooltipColors[1]} stopOpacity={0.2}/>
               </linearGradient>
             </defs>
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
@@ -254,14 +285,14 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
               type="monotone"
               dataKey="nonBillable"
               stackId="1"
-              stroke="#ef4444"
+              stroke={tooltipColors[1]}
               fill="url(#nonBillableGrad)"
             />
             <Area
               type="monotone"
               dataKey="billable"
               stackId="1"
-              stroke="#84cc16"
+              stroke={tooltipColors[0]}
               fill="url(#billableGrad)"
             />
           </AreaChart>
@@ -269,11 +300,11 @@ export default function BillableVsNonbillableArea({ filteredRows }) {
       </div>
       <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded" style={{ backgroundColor: 'rgb(181, 201, 51)' }}></div>
+          <div className="h-3 w-3 rounded" style={{ backgroundColor: tooltipColors[0] }}></div>
           <span>Billable Hours</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="h-3 w-3 rounded bg-red-400"></div>
+          <div className="h-3 w-3 rounded" style={{ backgroundColor: tooltipColors[1] }}></div>
           <span>Non-billable Hours</span>
         </div>
       </div>

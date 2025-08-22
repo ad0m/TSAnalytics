@@ -2,8 +2,28 @@ import { useMemo } from 'react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts'
 import dayjs from 'dayjs'
 import { DAY_HOURS, ROLE_TARGETS } from '../lib/invariants.js'
+import { uiTheme } from '../theme'
 
 export default function RoleUtilTrend({ filteredRows }) {
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
@@ -88,23 +108,31 @@ export default function RoleUtilTrend({ filteredRows }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: '#EFECD2',
-            borderColor: '#586961'
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
-          {payload.map((item, index) => {
-            const target = ROLE_TARGETS[item.dataKey] * 100
-            return (
-              <p key={index} className="text-xs" style={{ color: item.color }}>
-                {item.dataKey}: {item.value}% (Target: {target}%)
-              </p>
-            )
-          })}
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
+          <div className="space-y-1">
+            {payload.map((item, index) => {
+              const target = ROLE_TARGETS[item.dataKey] * 100
+              return (
+                <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                  <span style={{ color: '#EFECD2' }}>{item.dataKey}:</span>
+                  <span className="font-bold" style={{ color: item.color }}>
+                    {item.value}% (Target: {target}%)
+                  </span>
+                </div>
+              )
+            })}
+          </div>
         </div>
       )
     }
@@ -123,9 +151,9 @@ export default function RoleUtilTrend({ filteredRows }) {
   }
   
   const roleColors = {
-    'Cloud': '#22d3ee',
-    'Network': '#84cc16',
-    'PM': '#a78bfa'
+    'Cloud': tooltipColors[0],    // Lime Zest
+    'Network': tooltipColors[1],  // Vibrant Orange
+    'PM': tooltipColors[2]        // Bright Aqua
   }
   
   return (
@@ -158,17 +186,17 @@ export default function RoleUtilTrend({ filteredRows }) {
             {/* Reference lines for targets */}
             <ReferenceLine 
               y={75} 
-              stroke="#22d3ee" 
+              stroke={tooltipColors[0]} 
               strokeDasharray="2 2" 
               strokeWidth={1}
-              label={{ value: "Cloud/Network 75%", position: "topRight", fill: "#22d3ee", fontSize: 10 }}
+              label={{ value: "Cloud/Network 75%", position: "topRight", fill: tooltipColors[0], fontSize: 10 }}
             />
             <ReferenceLine 
               y={70} 
-              stroke="#a78bfa" 
+              stroke={tooltipColors[2]} 
               strokeDasharray="2 2" 
               strokeWidth={1}
-              label={{ value: "PM 70%", position: "bottomRight", fill: "#a78bfa", fontSize: 10 }}
+              label={{ value: "PM 70%", position: "bottomRight", fill: tooltipColors[2], fontSize: 10 }}
             />
             
             {/* Role utilisation lines */}
