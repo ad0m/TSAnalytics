@@ -732,7 +732,20 @@ export default function App() {
                 {tab === 'clients' && <Clients filteredRows={filteredRows} onCompanyFilter={handleCompanyFilter} onReset={handleResetFilters} />}
                 {tab === 'projects' && <Projects filteredRows={filteredRows} onCompanyFilter={handleCompanyFilter} onReset={handleResetFilters} />}
                 {tab === 'usage' && <ProjectTypeBars filteredRows={filteredRows} onExport={(node) => exportPng(node, 'time-allocation-project-type.png')} onReset={handleResetFilters} />}
-                {tab === 'trends' && <WeeklyTeamTrend filteredRows={filteredRows} onExport={(node) => exportPng(node, 'teams-hours-over-time.png')} onReset={handleResetFilters} />}
+                {tab === 'trends' && (
+                  <>
+                    <WeeklyTeamTrend 
+                      filteredRows={filteredRows} 
+                      onExport={(node) => exportPng(node, 'teams-hours-over-time.png')} 
+                      onReset={handleResetFilters} 
+                    />
+                                         <WeeklyTeamBankHolidayTrend 
+                       filteredRows={filteredRows} 
+                       onExport={(node) => exportPng(node, 'teams-annual-leave-over-time.png')} 
+                       onReset={handleResetFilters} 
+                     />
+                  </>
+                )}
                 {tab === 'governance' && <Governance filteredRows={filteredRows} onReset={handleResetFilters} />}
               </>
             )}
@@ -740,6 +753,148 @@ export default function App() {
         </div>
       </main>
       </div>
+  )
+}
+
+function WeeklyTeamBankHolidayTrend({ filteredRows, onExport, onReset }) {
+  // Custom color palette for tooltip values - matching Project Type Trends
+  const tooltipColors = [
+    '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+    '#FF4F00', // Vibrant Orange (brand accent, very strong)
+    '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+    '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+    '#FF6F61', // Coral (bright red-pink, strong)
+    '#C62828', // Deep Red (serious warning red, high contrast)
+    '#8E44AD', // Plum (rich purple, readable on sage)
+    '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+    '#4A3F94', // Indigo (deep, saturated indigo blue)
+    '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+    '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+    '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+    '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+    '#3C4CFF', // Electric Blue (saturated bright blue)
+    '#A58BFF'  // Light Lavender (gentle purple highlight)
+  ]
+
+  const { series, teams } = useMemo(() => {
+    try {
+      console.log('WeeklyTeamAnnualLeaveTrend - Processing', filteredRows?.length, 'rows')
+      
+      if (!filteredRows?.length) return { series: [], teams: [] }
+      
+      // Collect teams and pre-aggregate by ISO week for Bank/Holiday Leave only
+      const teamWeekData = {}
+      const allTeams = new Set()
+      
+      for (const r of filteredRows) {
+        // Only process Annual Leave entries
+        if (r['Project/Ticket'] !== 'Annual Leave') continue
+        
+        const team = r.Role || 'Unknown'
+        const week = r.isoWeek
+        const hours = r.Hours || 0
+        
+        // Skip rows without valid week data
+        if (!week) {
+          console.log('WeeklyTeamAnnualLeaveTrend - Skipping row without isoWeek:', r)
+          continue
+        }
+        
+        allTeams.add(team)
+        
+        if (!teamWeekData[week]) {
+          teamWeekData[week] = {}
+        }
+        teamWeekData[week][team] = (teamWeekData[week][team] || 0) + hours
+      }
+      
+      const teamsList = Array.from(allTeams).sort()
+      console.log('WeeklyTeamAnnualLeaveTrend - Teams found:', teamsList)
+      
+      // Get date range and fill missing weeks
+      const allWeeks = Object.keys(teamWeekData).sort()
+      console.log('WeeklyTeamAnnualLeaveTrend - Weeks found:', allWeeks.slice(0, 5), '...')
+      
+      if (allWeeks.length === 0) return { series: [], teams: teamsList }
+      
+      // Simplified approach - just use the weeks we have data for
+      const seriesData = allWeeks.map(week => {
+        const weekEntry = { week }
+        teamsList.forEach(team => {
+          weekEntry[team] = roundToQuarter(teamWeekData[week]?.[team] || 0)
+        })
+        return weekEntry
+      })
+      
+      console.log('WeeklyTeamAnnualLeaveTrend - Series data length:', seriesData.length)
+      return { series: seriesData, teams: teamsList }
+      
+    } catch (error) {
+      console.error('WeeklyTeamAnnualLeaveTrend - Error:', error)
+      return { series: [], teams: [] }
+    }
+  }, [filteredRows])
+  
+  const hasData = series.length > 0 && teams.length > 0
+  
+  return (
+    <Card title="Teams Annual Leave Over Time (Weekly)" onExport={onExport}>
+      {!hasData ? (
+        <EmptyState title="No annual leave trend data" onReset={onReset} />
+      ) : (
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={series} margin={{ left: 8, right: 16, top: 8, bottom: 24 }}>
+            <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
+            <XAxis dataKey="week" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
+            <YAxis tick={{ fill: '#cbd5e1', fontSize: 12 }} />
+            <ReTooltip 
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+                  
+                  return (
+                    <div 
+                      className="rounded-lg border p-3 shadow-2xl"
+                      style={{ 
+                        backgroundColor: '#586961', 
+                        borderColor: '#586961',
+                        color: '#EFECD2'
+                      }}
+                    >
+                      <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
+                        Week {label}
+                      </p>
+                      <div className="space-y-1">
+                        {payload.map((item, index) => (
+                          <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                            <span style={{ color: '#EFECD2' }}>{item.name}:</span>
+                            <span className="font-bold" style={{ color: item.color }}>
+                              {formatTooltipHours(Number(item.value))}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                }
+                return null
+              }}
+            />
+            {teams.map((t, i) => (
+              <Line 
+                key={t} 
+                type="monotone" 
+                dataKey={t} 
+                stroke={tooltipColors[i % tooltipColors.length]} 
+                strokeWidth={3} 
+                dot={{ r: 3, fill: tooltipColors[i % tooltipColors.length] }} 
+                activeDot={{ r: 5, fill: tooltipColors[i % tooltipColors.length] }} 
+              />
+            ))}
+          </LineChart>
+        </ResponsiveContainer>
+      )}
+    </Card>
   )
 }
 
