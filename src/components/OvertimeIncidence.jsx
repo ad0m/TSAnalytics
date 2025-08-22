@@ -2,11 +2,46 @@ import React, { useMemo, useRef } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Legend, ResponsiveContainer, LineChart, Line, AreaChart, Area } from 'recharts'
 import { toBlob } from 'html-to-image'
 import { Download } from 'lucide-react'
+import dayjs from 'dayjs'
+import isoWeek from 'dayjs/plugin/isoWeek'
 import { uiTheme } from '../theme'
 import { computeWeeklyOvertime } from '../lib/computeOvertime.js'
 
+// Extend dayjs with ISO week plugin
+dayjs.extend(isoWeek)
+
 export default function OvertimeIncidence({ filteredRows }) {
   const ref = useRef(null)
+  
+  // Helper function to convert ISO week string to date
+  const isoWeekToDate = (isoWeekStr) => {
+    try {
+      // Parse ISO week string like "2024-W01"
+      const match = isoWeekStr.match(/^(\d{4})-W(\d{2})$/)
+      if (!match) return isoWeekStr
+      
+      const year = parseInt(match[1])
+      const week = parseInt(match[2])
+      
+      // Get the first day of the year
+      const firstDayOfYear = dayjs().year(year).startOf('year')
+      
+      // Find the first Monday of the year (ISO week 1)
+      let firstMonday = firstDayOfYear
+      while (firstMonday.isoWeekday() !== 1) {
+        firstMonday = firstMonday.add(1, 'day')
+      }
+      
+      // Calculate the start of the target week
+      const weekStart = firstMonday.add((week - 1) * 7, 'days')
+      
+      // Format as "DD/MM/YYYY" for better readability
+      return weekStart.format('DD/MM/YYYY')
+    } catch (error) {
+      console.error('Error converting ISO week to date:', error)
+      return isoWeekStr
+    }
+  }
   
   const data = useMemo(() => {
     try {
@@ -59,7 +94,10 @@ export default function OvertimeIncidence({ filteredRows }) {
       // Build chart data - limit to 9 weeks for better readability
       const chartData = Object.entries(weekGroups)
         .map(([isoWeek, memberData]) => {
-          const weekEntry = { week: isoWeek }
+          const weekEntry = { 
+            week: isoWeek,
+            weekDate: isoWeekToDate(isoWeek) // Add formatted date
+          }
           
           // Add total overtime for the week
           let weekTotal = 0
@@ -111,6 +149,10 @@ export default function OvertimeIncidence({ filteredRows }) {
     if (active && payload && payload.length) {
       const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
       
+      // Find the week data to get the formatted date
+      const weekData = data.chartData.find(item => item.week === label)
+      const displayDate = weekData?.weekDate || label
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
@@ -121,7 +163,7 @@ export default function OvertimeIncidence({ filteredRows }) {
           }}
         >
           <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
-            Week {label}
+            Week commencing {displayDate}
           </p>
                      <div className="space-y-1">
              {payload
@@ -250,7 +292,7 @@ export default function OvertimeIncidence({ filteredRows }) {
            >
              <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
              <XAxis 
-               dataKey="week" 
+               dataKey="weekDate" 
                tick={{ fill: '#cbd5e1', fontSize: 11 }}
                tickLine={{ stroke: '#475569' }}
                axisLine={{ stroke: '#475569' }}
