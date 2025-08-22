@@ -1,9 +1,30 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer } from 'recharts'
+import { uiTheme } from '../theme'
+
+// Custom color palette for tooltip values - matching Project Type Trends
+const tooltipColors = [
+  '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+  '#FF4F00', // Vibrant Orange (brand accent, very strong)
+  '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+  '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+  '#FF6F61', // Coral (bright red-pink, strong)
+  '#C62828', // Deep Red (serious warning red, high contrast)
+  '#8E44AD', // Plum (rich purple, readable on sage)
+  '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+  '#4A3F94', // Indigo (deep, saturated indigo blue)
+  '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+  '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+  '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+  '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+  '#3C4CFF', // Electric Blue (saturated bright blue)
+  '#A58BFF'  // Light Lavender (gentle purple highlight)
+]
 
 const PROJECT_TYPE_COLORS = [
-  '#84cc16', '#22d3ee', '#a78bfa', '#fb7185', '#fbbf24', '#34d399',
-  '#f472b6', '#60a5fa', '#f97316', '#10b981', '#8b5cf6', '#ef4444'
+  ...tooltipColors,            // 15 base palette colors
+  '#2EC27E',                   // Extra 1: Emerald green
+  '#FF7F50'                    // Extra 2: Coral orange
 ]
 
 export default function ClientProjectTypeMix({ filteredRows, onCompanyFilter }) {
@@ -61,29 +82,39 @@ export default function ClientProjectTypeMix({ filteredRows, onCompanyFilter }) 
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: '#EFECD2',
-            borderColor: '#586961'
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
-          <p className="text-xs mb-2" style={{ color: '#586961' }}>Total: {data.totalHours}h</p>
-          {payload.map((entry, index) => {
-            if (entry.value > 0) {
-              return (
-                <p key={index} className="text-xs" style={{ color: entry.color }}>
-                  {entry.dataKey}: {entry.value}h
-                </p>
-              )
-            }
-            return null
-          })}
-          <p className="text-xs text-cyan-400 mt-1 border-t pt-1" style={{ borderColor: '#586961' }}>
-            Click to filter by this client
-          </p>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs mb-2" style={{ textShadow }}>
+              <span style={{ color: '#EFECD2' }}>Total:</span>
+              <span className="font-bold" style={{ color: tooltipColors[12] }}>{data.totalHours}h</span>
+            </div>
+            {payload.map((entry, index) => {
+              if (entry.value > 0) {
+                return (
+                  <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                    <span style={{ color: '#EFECD2' }}>{entry.dataKey}:</span>
+                    <span className="font-bold" style={{ color: entry.color }}>{entry.value}h</span>
+                  </div>
+                )
+              }
+              return null
+            })}
+            <div className="flex justify-between items-center text-xs mt-1 border-t pt-1" style={{ textShadow, borderColor: uiTheme.muted }}>
+              <span style={{ color: '#EFECD2' }}>Action:</span>
+              <span className="font-bold" style={{ color: tooltipColors[13] }}>Click to filter</span>
+            </div>
+          </div>
         </div>
       )
     }
@@ -146,18 +177,15 @@ export default function ClientProjectTypeMix({ filteredRows, onCompanyFilter }) 
         </ResponsiveContainer>
       </div>
       <div className="mt-4 flex flex-wrap items-center justify-center gap-3 text-xs text-slate-400">
-        {projectTypes.slice(0, 6).map((projectType, index) => ( // Show only first 6 in legend for space
+        {projectTypes.map((projectType, index) => (
           <div key={projectType} className="flex items-center gap-2">
             <div 
               className="h-3 w-3 rounded" 
               style={{ backgroundColor: PROJECT_TYPE_COLORS[index % PROJECT_TYPE_COLORS.length] }}
             ></div>
-            <span className="truncate max-w-20" title={projectType}>{projectType}</span>
+            <span className="break-words" style={{ whiteSpace: 'normal' }} title={projectType}>{projectType}</span>
           </div>
         ))}
-        {projectTypes.length > 6 && (
-          <span className="text-slate-500">+{projectTypes.length - 6} more</span>
-        )}
       </div>
     </div>
   )

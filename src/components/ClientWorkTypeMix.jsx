@@ -1,12 +1,32 @@
 import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Cell } from 'recharts'
+import { uiTheme } from '../theme'
+
+// Custom color palette for tooltip values - matching Project Type Trends
+const tooltipColors = [
+  '#B5C933', // Lime Zest (brand secondary, high contrast yellow-green)
+  '#FF4F00', // Vibrant Orange (brand accent, very strong)
+  '#3CC9E3', // Bright Aqua (crisp cyan, pops well)
+  '#FFD166', // Soft Yellow (warm yellow, readable, friendly)
+  '#FF6F61', // Coral (bright red-pink, strong)
+  '#C62828', // Deep Red (serious warning red, high contrast)
+  '#8E44AD', // Plum (rich purple, readable on sage)
+  '#FF3462', // Vivid Pink (neon raspberry pink, vibrant substitute for orange)
+  '#4A3F94', // Indigo (deep, saturated indigo blue)
+  '#4DD0E1', // Sky Blue (lighter teal-cyan, softer contrast)
+  '#1E8FA6', // Turquoise (medium cyan-teal, still visible on sage)
+  '#FF9E2C', // Warm Amber (between orange and yellow, vibrant)
+  '#7FE7A1', // Mint Green (fresh mint tone, light and legible)
+  '#3C4CFF', // Electric Blue (saturated bright blue)
+  '#A58BFF'  // Light Lavender (gentle purple highlight)
+]
 
 const WORK_TYPE_COLORS = {
-  'Tech Delivery': '#22d3ee',
-  'PM Delivery': '#84cc16', 
-  'Internal Admin': '#f59e0b',
-  'Internal Support': '#fbbf24',
-  'Other': '#9ca3af'
+  'Tech Delivery': tooltipColors[0],      // Lime Zest
+  'PM Delivery': tooltipColors[1],        // Vibrant Orange
+  'Internal Admin': tooltipColors[2],     // Bright Aqua
+  'Internal Support': tooltipColors[3],   // Soft Yellow
+  'Other': tooltipColors[4]               // Coral
 }
 
 export default function ClientWorkTypeMix({ filteredRows, onCompanyFilter }) {
@@ -57,29 +77,41 @@ export default function ClientWorkTypeMix({ filteredRows, onCompanyFilter }) {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload
+      const textShadow = '0 1px 1px rgba(0,0,0,0.5)'
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: '#EFECD2',
-            borderColor: '#586961'
+            backgroundColor: '#586961', 
+            borderColor: uiTheme.muted,
+            color: uiTheme.chart.tooltipText
           }}
         >
-          <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
-          <p className="text-xs mb-2" style={{ color: '#586961' }}>Total: {data.totalHours}h</p>
-          {payload.map((entry, index) => {
-            const workType = entry.dataKey
-            const percentage = entry.value
-            const hours = data[`${workType}_hours`]
-            return (
-              <p key={index} className="text-xs" style={{ color: entry.color }}>
-                {workType}: {hours}h ({percentage.toFixed(1)}%)
-              </p>
-            )
-          })}
-          <p className="text-xs text-cyan-400 mt-1 border-t pt-1" style={{ borderColor: '#586961' }}>
-            Click to filter by this client
-          </p>
+          <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs mb-2" style={{ textShadow }}>
+              <span style={{ color: '#EFECD2' }}>Total:</span>
+              <span className="font-bold" style={{ color: tooltipColors[5] }}>{data.totalHours}h</span>
+            </div>
+            {payload.map((entry, index) => {
+              const workType = entry.dataKey
+              const percentage = entry.value
+              const hours = data[`${workType}_hours`]
+              return (
+                <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                  <span style={{ color: '#EFECD2' }}>{workType}:</span>
+                  <span className="font-bold" style={{ color: entry.color }}>
+                    {hours}h ({percentage.toFixed(1)}%)
+                  </span>
+                </div>
+              )
+            })}
+            <div className="flex justify-between items-center text-xs mt-1 border-t pt-1" style={{ textShadow, borderColor: uiTheme.muted }}>
+              <span style={{ color: '#EFECD2' }}>Action:</span>
+              <span className="font-bold" style={{ color: tooltipColors[6] }}>Click to filter</span>
+            </div>
+          </div>
         </div>
       )
     }
