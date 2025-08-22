@@ -3,6 +3,25 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Respo
 import { ACCESSIBLE_COLORS } from '../lib/utils.jsx'
 import { uiTheme } from '../theme'
 
+// Custom color palette matching the Project Type Trends & Summary chart
+const CUSTOM_COLORS = [
+  '#B5C933', // Lime Zest
+  '#FF4F00', // Vibrant Orange
+  '#3CC9E3', // Bright Aqua
+  '#FFD166', // Soft Yellow
+  '#FF6F61', // Coral
+  '#C62828', // Deep Red
+  '#8E44AD', // Plum
+  '#FF3462', // Vivid Pink
+  '#4A3F94', // Indigo
+  '#4DD0E1', // Sky Blue
+  '#1E8FA6', // Turquoise
+  '#FF9E2C', // Warm Amber
+  '#7FE7A1', // Mint Green
+  '#3C4CFF', // Electric Blue
+  '#A58BFF'  // Light Lavender
+]
+
 export default function TopProjectsBar({ filteredRows, onProjectClick }) {
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
@@ -193,41 +212,46 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
             <ReTooltip 
               content={({ active, payload, label }) => {
                 if (active && payload && payload.length) {
-                  const data = payload[0].payload
-                  const hours = data.hours
+                  const barData = payload[0].payload
+                  const hours = barData.hours
                   const pct = totalHours > 0 ? ((hours / totalHours) * 100).toFixed(1) : '0.0'
-                  const company = data.company || 'Unknown Company'
-                  const projectManager = data.projectManager || 'Not assigned'
-                  const engineers = data.engineers || 'Not assigned'
+                  const company = barData.company || 'Unknown Company'
+                  const projectManager = barData.projectManager || 'Not assigned'
+                  const engineers = barData.engineers || 'Not assigned'
+                  
+                  // Get the color for this specific bar to use in tooltip
+                  const barIndex = data.findIndex(item => item.project === barData.project)
+                  const barColor = CUSTOM_COLORS[barIndex % CUSTOM_COLORS.length]
                   
                   return (
                     <div 
                       className="rounded-lg border p-3 shadow-2xl"
                       style={{ 
-                        backgroundColor: uiTheme.chart.tooltipBg, 
-                        borderColor: uiTheme.chart.tooltipBorder 
+                        backgroundColor: '#586961', // Smokey Sage
+                        borderColor: uiTheme.muted,
+                        textShadow: '0 1px 1px rgba(0,0,0,0.5)'
                       }}
                     >
-                      <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>
-                        Project: {data.project}
+                      <p className="text-sm font-semibold mb-2" style={{ color: '#B5C933' }}>
+                        Project: {barData.project}
                       </p>
                       
                       <div className="space-y-1">
                         <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: uiTheme.muted }}>Hours:</span>
-                          <span className="font-medium" style={{ color: uiTheme.secondary }}>{hours}h ({pct}%)</span>
+                          <span style={{ color: '#EFECD2' }}>Hours:</span>
+                          <span className="font-bold" style={{ color: barColor }}>{hours}h ({pct}%)</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: uiTheme.muted }}>Company:</span>
-                          <span style={{ color: uiTheme.chart.tooltipText }}>{company}</span>
+                          <span style={{ color: '#EFECD2' }}>Company:</span>
+                          <span className="font-bold" style={{ color: barColor }}>{company}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: uiTheme.muted }}>PM/s:</span>
-                          <span style={{ color: uiTheme.chart.tooltipText }}>{projectManager}</span>
+                          <span style={{ color: '#EFECD2' }}>PM/s:</span>
+                          <span className="font-bold" style={{ color: barColor }}>{projectManager}</span>
                         </div>
                         <div className="flex justify-between items-center text-xs">
-                          <span style={{ color: uiTheme.muted }}>Engineer/s:</span>
-                          <span style={{ color: uiTheme.chart.tooltipText }}>{engineers}</span>
+                          <span style={{ color: '#EFECD2' }}>Engineer/s:</span>
+                          <span className="font-bold" style={{ color: barColor }}>{engineers}</span>
                         </div>
                       </div>
                     </div>
@@ -252,7 +276,7 @@ export default function TopProjectsBar({ filteredRows, onProjectClick }) {
                 }}
               />
               {data.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={ACCESSIBLE_COLORS[index % ACCESSIBLE_COLORS.length]} />
+                <Cell key={`cell-${index}`} fill={CUSTOM_COLORS[index % CUSTOM_COLORS.length]} />
               ))}
             </Bar>
           </BarChart>

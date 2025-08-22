@@ -3,6 +3,25 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, Res
 import dayjs from 'dayjs'
 import { DAY_HOURS } from '../lib/invariants.js'
 
+// Custom color palette matching the Project Type Trends & Summary chart
+const CUSTOM_COLORS = [
+  '#B5C933', // Lime Zest
+  '#FF4F00', // Vibrant Orange
+  '#3CC9E3', // Bright Aqua
+  '#FFD166', // Soft Yellow
+  '#FF6F61', // Coral
+  '#C62828', // Deep Red
+  '#8E44AD', // Plum
+  '#FF3462', // Vivid Pink
+  '#4A3F94', // Indigo
+  '#4DD0E1', // Sky Blue
+  '#1E8FA6', // Turquoise
+  '#FF9E2C', // Warm Amber
+  '#7FE7A1', // Mint Green
+  '#3C4CFF', // Electric Blue
+  '#A58BFF'  // Light Lavender
+]
+
 /**
  * Calculates working days in a month (excludes weekends)
  * @param {string} calendarMonth - YYYY-MM format
@@ -98,24 +117,41 @@ export default function DeptUtilTrend({ filteredRows }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const barData = payload[0].payload
+      
       return (
-                 <div 
-           className="rounded-lg border p-3 shadow-2xl"
-           style={{ 
-             backgroundColor: '#EFECD2',
-             borderColor: '#586961'
-           }}
-         >
-                     <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{label}</p>
-           <p className="text-xs" style={{ color: '#586961' }}>
-             Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
-           </p>
-          {payload.map((entry, index) => (
-            <p key={index} className="text-xs" style={{ color: entry.color }}>
-              {entry.dataKey === 'utilisation' ? 'Dept Util' : '3-Month Avg'}: {entry.value?.toFixed(1)}%
-            </p>
-          ))}
+        <div 
+          className="rounded-lg border p-3 shadow-2xl"
+          style={{ 
+            backgroundColor: '#586961', // Smokey Sage
+            borderColor: '#475569',
+            textShadow: '0 1px 1px rgba(0,0,0,0.5)'
+          }}
+        >
+          <p className="text-sm font-semibold mb-2" style={{ color: '#B5C933' }}>
+            Month: {label}
+          </p>
+          
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Billable:</span>
+              <span className="font-bold" style={{ color: CUSTOM_COLORS[0] }}>{barData.billableHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Worked:</span>
+              <span className="font-bold" style={{ color: CUSTOM_COLORS[0] }}>{barData.totalWorkedHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Dept Util:</span>
+              <span className="font-bold" style={{ color: CUSTOM_COLORS[0] }}>{barData.utilisation?.toFixed(1)}%</span>
+            </div>
+            {barData.movingAvg !== null && (
+              <div className="flex justify-between items-center text-xs">
+                <span style={{ color: '#EFECD2' }}>3-Month Avg:</span>
+                <span className="font-bold" style={{ color: CUSTOM_COLORS[1] }}>{barData.movingAvg?.toFixed(1)}%</span>
+              </div>
+            )}
+          </div>
         </div>
       )
     }
@@ -154,33 +190,33 @@ export default function DeptUtilTrend({ filteredRows }) {
             <Line 
               type="monotone" 
               dataKey="utilisation" 
-              stroke="#84cc16" 
+              stroke={CUSTOM_COLORS[0]} // Lime Zest
               strokeWidth={3}
-              dot={{ r: 4, fill: '#84cc16' }} 
-              activeDot={{ r: 6, fill: '#84cc16' }}
+              dot={{ r: 4, fill: CUSTOM_COLORS[0] }} 
+              activeDot={{ r: 6, fill: CUSTOM_COLORS[0] }}
             />
             
             {/* 3-month moving average line */}
             <Line 
               type="monotone" 
               dataKey="movingAvg" 
-              stroke="#22d3ee" 
+              stroke={CUSTOM_COLORS[1]} // Vibrant Orange
               strokeWidth={2}
               strokeDasharray="5 5"
               dot={false}
-              activeDot={{ r: 4, fill: '#22d3ee' }}
+              activeDot={{ r: 4, fill: CUSTOM_COLORS[1] }}
               connectNulls={false}
             />
           </LineChart>
         </ResponsiveContainer>
       </div>
-              <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
-          <div className="flex items-center gap-2">
-            <div className="h-1 w-6 rounded" style={{ backgroundColor: 'rgb(181, 201, 51)' }}></div>
-            <span>Dept Utilisation</span>
-          </div>
+      <div className="mt-4 flex items-center justify-center gap-6 text-xs text-slate-400">
         <div className="flex items-center gap-2">
-          <div className="h-1 w-6 bg-cyan-400 rounded" style={{ background: 'repeating-linear-gradient(to right, #22d3ee 0, #22d3ee 3px, transparent 3px, transparent 6px)' }}></div>
+          <div className="h-1 w-6 rounded" style={{ backgroundColor: CUSTOM_COLORS[0] }}></div>
+          <span>Dept Utilisation</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="h-1 w-6 rounded" style={{ background: `repeating-linear-gradient(to right, ${CUSTOM_COLORS[1]} 0, ${CUSTOM_COLORS[1]} 3px, transparent 3px, transparent 6px)` }}></div>
           <span>3-Month Moving Avg</span>
         </div>
       </div>

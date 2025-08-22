@@ -2,6 +2,25 @@ import { useMemo } from 'react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip, ResponsiveContainer, Cell } from 'recharts'
 import { uiTheme } from '../theme'
 
+// Custom color palette matching the Project Type Trends & Summary chart
+const CUSTOM_COLORS = [
+  '#B5C933', // Lime Zest
+  '#FF4F00', // Vibrant Orange
+  '#3CC9E3', // Bright Aqua
+  '#FFD166', // Soft Yellow
+  '#FF6F61', // Coral
+  '#C62828', // Deep Red
+  '#8E44AD', // Plum
+  '#FF3462', // Vivid Pink
+  '#4A3F94', // Indigo
+  '#4DD0E1', // Sky Blue
+  '#1E8FA6', // Turquoise
+  '#FF9E2C', // Warm Amber
+  '#7FE7A1', // Mint Green
+  '#3C4CFF', // Electric Blue
+  '#A58BFF'  // Light Lavender
+]
+
 export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
@@ -46,38 +65,42 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
-      const projects = data.projects || {}
+      const barData = payload[0].payload
+      const projects = barData.projects || {}
+      
+      // Get the color for this specific bar to use in tooltip
+      const barIndex = data.findIndex(item => item.company === barData.company)
+      const barColor = CUSTOM_COLORS[barIndex % CUSTOM_COLORS.length]
       
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl min-w-48"
           style={{ 
-            backgroundColor: uiTheme.chart.tooltipBg, 
-            borderColor: uiTheme.chart.tooltipBorder,
-            color: uiTheme.chart.tooltipText 
+            backgroundColor: '#586961', // Smokey Sage
+            borderColor: uiTheme.muted,
+            textShadow: '0 1px 1px rgba(0,0,0,0.5)'
           }}
         >
-          <p className="text-sm font-medium mb-2" style={{ color: uiTheme.chart.tooltipText }}>
+          <p className="text-sm font-semibold mb-2" style={{ color: '#B5C933' }}>
             Company: {label}
           </p>
           
           {/* Project breakdown */}
           {Object.entries(projects).map(([project, hours]) => (
             <div key={project} className="flex justify-between items-center text-xs mb-1">
-              <span className="truncate max-w-32" style={{ color: uiTheme.muted }}>{project}:</span>
-              <span className="font-medium" style={{ color: uiTheme.secondary }}>{Math.round(hours * 4) / 4}h</span>
+              <span className="truncate max-w-32" style={{ color: '#EFECD2' }}>{project}:</span>
+              <span className="font-bold" style={{ color: barColor }}>{Math.round(hours * 4) / 4}h</span>
             </div>
           ))}
           
           <div className="pt-2 mt-2" style={{ borderTop: `1px solid ${uiTheme.border}` }}>
             <div className="flex justify-between items-center text-xs">
-              <span style={{ color: uiTheme.muted }}>Total Hours:</span>
-              <span className="font-semibold" style={{ color: uiTheme.chart.tooltipText }}>{payload[0].value}h</span>
+              <span style={{ color: '#EFECD2' }}>Total Hours:</span>
+              <span className="font-bold" style={{ color: barColor }}>{payload[0].value}h</span>
             </div>
           </div>
           
-          <p className="text-xs mt-2 text-center" style={{ color: uiTheme.secondary }}>
+          <p className="text-xs mt-2 text-center" style={{ color: barColor }}>
             Click to filter by this company
           </p>
         </div>
@@ -113,12 +136,6 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
             layout="vertical" 
             margin={{ left: 12, right: 24, top: 8, bottom: 40 }}
           >
-            <defs>
-              <linearGradient id="barGradient" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor={uiTheme.primary} stopOpacity={0.9}/>
-                <stop offset="100%" stopColor={uiTheme.primary} stopOpacity={0.7}/>
-              </linearGradient>
-            </defs>
             <CartesianGrid strokeDasharray="3 3" stroke={uiTheme.chart.grid} />
             <XAxis 
               type="number" 
@@ -141,7 +158,7 @@ export default function TopCompaniesBar({ filteredRows, onCompanyClick }) {
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill="url(#barGradient)"
+                  fill={CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
                   className="hover:opacity-80 transition-opacity"
                 />
               ))}

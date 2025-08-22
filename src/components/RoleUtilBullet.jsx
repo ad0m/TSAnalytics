@@ -4,6 +4,25 @@ import dayjs from 'dayjs'
 import { ROLE_TARGETS, DAY_HOURS } from '../lib/invariants.js'
 import { uiTheme } from '../theme'
 
+// Custom color palette matching the Project Type Trends & Summary chart
+const CUSTOM_COLORS = [
+  '#B5C933', // Lime Zest
+  '#FF4F00', // Vibrant Orange
+  '#3CC9E3', // Bright Aqua
+  '#FFD166', // Soft Yellow
+  '#FF6F61', // Coral
+  '#C62828', // Deep Red
+  '#8E44AD', // Plum
+  '#FF3462', // Vivid Pink
+  '#4A3F94', // Indigo
+  '#4DD0E1', // Sky Blue
+  '#1E8FA6', // Turquoise
+  '#FF9E2C', // Warm Amber
+  '#7FE7A1', // Mint Green
+  '#3C4CFF', // Electric Blue
+  '#A58BFF'  // Light Lavender
+]
+
 /**
  * Calculates working days in a month (excludes weekends)
  * @param {string} calendarMonth - YYYY-MM format
@@ -92,28 +111,6 @@ export default function RoleUtilBullet({ filteredRows }) {
     return calculateRoleUtilisation(filteredRows || [])
   }, [filteredRows])
   
-  // Define distinct colors for each team
-  const teamColors = {
-    Cloud: {
-      primary: '#06b6d4', // cyan-500
-      secondary: '#0891b2', // cyan-600
-      target: '#0e7490', // cyan-700
-      light: '#67e8f9' // cyan-300
-    },
-    Network: {
-      primary: '#8b5cf6', // violet-500
-      secondary: '#7c3aed', // violet-600
-      target: '#6d28d9', // violet-700
-      light: '#a78bfa' // violet-300
-    },
-    PM: {
-      primary: '#f97316', // orange-500
-      secondary: '#ea580c', // orange-600
-      target: '#c2410c', // orange-700
-      light: '#fb923c' // orange-300
-    }
-  }
-  
   // Group teams by target values to combine duplicate lines
   const targetGroups = data.reduce((groups, item) => {
     const target = item.target
@@ -126,30 +123,46 @@ export default function RoleUtilBullet({ filteredRows }) {
   
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
-      const teamColor = teamColors[data.role]
+      const barData = payload[0].payload
+      
+      // Get the color for this specific bar to use in tooltip
+      const barIndex = data.findIndex(item => item.role === barData.role)
+      const barColor = CUSTOM_COLORS[barIndex % CUSTOM_COLORS.length]
+      
       return (
         <div 
           className="rounded-lg border p-3 shadow-2xl"
           style={{ 
-            backgroundColor: '#EFECD2',
-            borderColor: '#586961'
+            backgroundColor: '#586961', // Smokey Sage
+            borderColor: uiTheme.muted,
+            textShadow: '0 1px 1px rgba(0,0,0,0.5)'
           }}
         >
           <div className="flex items-center gap-2 mb-2">
             <div 
               className="h-3 w-3 rounded-full" 
-              style={{ backgroundColor: teamColor.primary }}
+              style={{ backgroundColor: barColor }}
             ></div>
-            <p className="text-sm font-medium" style={{ color: '#111C3A' }}>{data.role} Team</p>
+            <p className="text-sm font-semibold" style={{ color: '#B5C933' }}>{barData.role} Team</p>
           </div>
-          <p className="text-xs" style={{ color: '#586961' }}>
-            Billable: {data.billableHours}h / Worked: {data.totalWorkedHours}h
-          </p>
-          <p className="text-xs" style={{ color: '#586961' }}>
-            Utilisation: <span style={{ color: teamColor.primary }}>{data.utilisation}%</span> 
-            (Target: <span style={{ color: teamColor.target }}>{data.target}%</span>)
-          </p>
+          <div className="space-y-1">
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Billable:</span>
+              <span className="font-bold" style={{ color: barColor }}>{barData.billableHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Worked:</span>
+              <span className="font-bold" style={{ color: barColor }}>{barData.totalWorkedHours}h</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Utilisation:</span>
+              <span className="font-bold" style={{ color: barColor }}>{barData.utilisation}%</span>
+            </div>
+            <div className="flex justify-between items-center text-xs">
+              <span style={{ color: '#EFECD2' }}>Target:</span>
+              <span className="font-bold" style={{ color: barColor }}>{barData.target}%</span>
+            </div>
+          </div>
         </div>
       )
     }
@@ -191,7 +204,7 @@ export default function RoleUtilBullet({ filteredRows }) {
             />
             <ReTooltip content={<CustomTooltip />} />
             
-            {/* Utilisation bars with team-specific colors */}
+            {/* Utilisation bars with custom colors */}
             <Bar 
               dataKey="utilisation" 
               radius={[0, 4, 4, 0]}
@@ -199,7 +212,7 @@ export default function RoleUtilBullet({ filteredRows }) {
               {data.map((entry, index) => (
                 <Cell 
                   key={`cell-${index}`} 
-                  fill={teamColors[entry.role].primary}
+                  fill={CUSTOM_COLORS[index % CUSTOM_COLORS.length]}
                 />
               ))}
             </Bar>
@@ -210,10 +223,10 @@ export default function RoleUtilBullet({ filteredRows }) {
               let lineColor
               if (teams.length === 1 && teams[0].role === 'PM') {
                 // PM team gets orange target line
-                lineColor = teamColors.PM.target
+                lineColor = '#FF9E2C' // Warm Amber from custom palette
               } else {
-                // Cloud & Network teams get a shared blue-violet target line
-                lineColor = '#3b82f6' // blue-500
+                // Cloud & Network teams get a shared blue target line
+                lineColor = '#3C4CFF' // Electric Blue from custom palette
               }
               
               return (
@@ -246,14 +259,14 @@ export default function RoleUtilBullet({ filteredRows }) {
           <div className="space-y-3">
             <div className="text-center text-xs text-slate-400 mb-3">Legend</div>
             <div className="grid grid-cols-1 gap-3">
-              {data.map((item) => {
-                const teamColor = teamColors[item.role]
+              {data.map((item, index) => {
+                const barColor = CUSTOM_COLORS[index % CUSTOM_COLORS.length]
                 return (
                   <div key={item.role} className="flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2">
                       <div 
                         className="h-3 w-3 rounded" 
-                        style={{ backgroundColor: teamColor.primary }}
+                        style={{ backgroundColor: barColor }}
                       ></div>
                       <span className="text-slate-300">{item.role} Team</span>
                     </div>
@@ -261,7 +274,7 @@ export default function RoleUtilBullet({ filteredRows }) {
                       <span className="text-slate-400">Target:</span>
                       <span 
                         className="font-medium" 
-                        style={{ color: teamColor.target }}
+                        style={{ color: barColor }}
                       >
                         {item.target}%
                       </span>
@@ -278,11 +291,11 @@ export default function RoleUtilBullet({ filteredRows }) {
             {Object.entries(targetGroups).map(([target, teams]) => {
               let lineColor, labelText, legendText
               if (teams.length === 1 && teams[0].role === 'PM') {
-                lineColor = teamColors.PM.target
+                lineColor = '#FF9E2C' // Warm Amber from custom palette
                 labelText = `${target}% - PM Team`
                 legendText = `${target}% - PM Team`
               } else {
-                lineColor = '#3b82f6'
+                lineColor = '#3C4CFF' // Electric Blue from custom palette
                 labelText = `${target}% - Cloud Team/Network Team`
                 legendText = `${target}% - Cloud Team/Network Team`
               }
