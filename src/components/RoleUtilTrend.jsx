@@ -27,81 +27,83 @@ export default function RoleUtilTrend({ filteredRows }) {
   const data = useMemo(() => {
     if (!filteredRows || filteredRows.length === 0) return []
     
-    // Group by month and role
-    const monthlyRoleData = {}
-    const monthlyRoleContractHours = {}
+    // Group by week and role - using the same logic as KPI tiles
+    const weeklyRoleData = {}
     
     for (const row of filteredRows) {
-      const month = row.calendarMonth
+      const week = row.isoWeek // Use ISO week (YYYY-W##)
       const role = row.Role
       const member = row.Member || 'Unknown'
       const hours = row.Hours
-      const isBillable = row.isBillable
-      const dateObj = dayjs(row.dateObj)
       
       // Only track roles with targets
       if (!ROLE_TARGETS[role]) continue
       
-      if (!monthlyRoleData[month]) {
-        monthlyRoleData[month] = {}
-        monthlyRoleContractHours[month] = {}
+      // Skip rows without valid week data
+      if (!week) continue
+      
+      if (!weeklyRoleData[week]) {
+        weeklyRoleData[week] = {}
       }
       
-      if (!monthlyRoleData[month][role]) {
-        monthlyRoleData[month][role] = {
-          billableHours: 0,
-          totalHours: 0,
+      if (!weeklyRoleData[week][role]) {
+        weeklyRoleData[week][role] = {
+          productiveHours: 0,
+          totalWorkedHours: 0,
           members: new Set()
         }
-        monthlyRoleContractHours[month][role] = 0
       }
       
-      monthlyRoleData[month][role].totalHours += hours
-      if (isBillable) {
-        monthlyRoleData[month][role].billableHours += hours
+      // Add ALL worked hours (productive + non-productive)
+      weeklyRoleData[week][role].totalWorkedHours += hours
+      
+      // Add productive hours using Productivity field directly (same as KPI tiles)
+      const productivity = (row.Productivity || '').trim()
+      if (productivity === "Productive") {
+        weeklyRoleData[week][role].productiveHours += hours
       }
-      monthlyRoleData[month][role].members.add(member)
+      
+      weeklyRoleData[week][role].members.add(member)
     }
     
-    // Calculate contract hours for each month/role combination
-    for (const month in monthlyRoleData) {
-      const monthDate = dayjs(month)
-      const daysInMonth = monthDate.daysInMonth()
-      let workingDaysInMonth = 0
-      
-      for (let i = 1; i <= daysInMonth; i++) {
-        const day = monthDate.date(i)
-        if (day.isoWeekday() < 6) { // Monday to Friday
-          workingDaysInMonth++
+    // Convert to chart data using actual productivity-based utilisation
+    const chartData = Object.entries(weeklyRoleData)
+      .map(([week, roleData]) => {
+        // Convert ISO week to date format for display
+        const weekMatch = week.match(/(\d{4})-W(\d{2})/)
+        let displayWeek = week
+        if (weekMatch) {
+          const year = parseInt(weekMatch[1])
+          const weekNum = parseInt(weekMatch[2])
+          // Get the Monday of the week (ISO week starts on Monday)
+          const startOfYear = dayjs().year(year).startOf('year')
+          const mondayOfWeek = startOfYear.add((weekNum - 1) * 7, 'day').startOf('isoWeek')
+          displayWeek = `${mondayOfWeek.format('DD/MM')} (W${weekNum.toString().padStart(2, '0')})`
         }
-      }
-      
-      for (const role in monthlyRoleData[month]) {
-        const memberCount = monthlyRoleData[month][role].members.size
-        monthlyRoleContractHours[month][role] = memberCount * workingDaysInMonth * DAY_HOURS
-      }
-    }
-    
-    // Convert to chart data
-    const chartData = Object.entries(monthlyRoleData)
-      .map(([month, roleData]) => {
-        const monthEntry = { month }
+        
+        const weekEntry = { 
+          week,
+          displayWeek
+        }
         
         Object.keys(ROLE_TARGETS).forEach(role => {
-          const data = roleData[role]
-          const contractHours = monthlyRoleContractHours[month]?.[role] || 0
+          // Skip Team Lead role
+          if (role === "Team Lead") return
           
-          if (data && contractHours > 0) {
-            const utilisation = (data.billableHours / contractHours) * 100
-            monthEntry[role] = Math.round(utilisation * 10) / 10 // Round to 1 decimal
+          const data = roleData[role]
+          
+          if (data && data.totalWorkedHours > 0) {
+            // Utilisation = Productive Hours / Total Worked Hours (same as KPI tiles)
+            const utilisation = (data.productiveHours / data.totalWorkedHours) * 100
+            weekEntry[role] = Math.round(utilisation * 10) / 10 // Round to 1 decimal
           } else {
-            monthEntry[role] = 0
+            weekEntry[role] = 0
           }
         })
         
-        return monthEntry
+        return weekEntry
       })
-      .sort((a, b) => a.month.localeCompare(b.month))
+      .sort((a, b) => a.week.localeCompare(b.week))
     
     return chartData
   }, [filteredRows])
@@ -121,17 +123,19 @@ export default function RoleUtilTrend({ filteredRows }) {
         >
           <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>{label}</p>
           <div className="space-y-1">
-            {payload.map((item, index) => {
-              const target = ROLE_TARGETS[item.dataKey] * 100
-              return (
-                <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
-                  <span style={{ color: '#EFECD2' }}>{item.dataKey}:</span>
-                  <span className="font-bold" style={{ color: item.color }}>
-                    {item.value}% (Target: {target}%)
-                  </span>
-                </div>
-              )
-            })}
+            {payload
+              .filter(item => item.dataKey !== "Team Lead")
+              .map((item, index) => {
+                const target = ROLE_TARGETS[item.dataKey] * 100
+                return (
+                  <div key={index} className="flex justify-between items-center text-xs" style={{ textShadow }}>
+                    <span style={{ color: '#EFECD2' }}>{item.dataKey}:</span>
+                    <span className="font-bold" style={{ color: item.color }}>
+                      {item.value}% (Target: {target}%)
+                    </span>
+                  </div>
+                )
+              })}
           </div>
         </div>
       )
@@ -142,9 +146,9 @@ export default function RoleUtilTrend({ filteredRows }) {
   if (!data || data.length === 0) {
     return (
       <div className="oryx-card p-8">
-        <h3 className="oryx-heading text-lg mb-4">Role Utilisation Trend</h3>
+        <h3 className="oryx-heading text-lg mb-4">Weekly Role Productivity Utilisation Trend</h3>
         <div className="flex h-48 items-center justify-center text-sm text-slate-400">
-          No role utilisation data available
+          No weekly role productivity utilisation data available
         </div>
       </div>
     )
@@ -158,17 +162,18 @@ export default function RoleUtilTrend({ filteredRows }) {
   
   return (
     <div className="oryx-card p-6">
-      <h3 className="oryx-heading text-lg mb-4">Role Utilisation Trend</h3>
-      <div className="h-80">
+      <h3 className="oryx-heading text-lg mb-4">Weekly Role Productivity Utilisation Trend</h3>
+      <div className="h-[500px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart 
             data={data} 
-            margin={{ left: 8, right: 16, top: 8, bottom: 24 }}
+            margin={{ left: 8, right: 16, top: 24, bottom: 80 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
             <XAxis 
-              dataKey="month" 
-              tick={{ fill: '#cbd5e1', fontSize: 12 }}
+              dataKey="displayWeek" 
+              tick={{ fill: '#cbd5e1', fontSize: 10, angle: -90, textAnchor: 'end' }}
+              height={80}
             />
             <YAxis 
               domain={[0, 100]}
@@ -200,23 +205,26 @@ export default function RoleUtilTrend({ filteredRows }) {
             />
             
             {/* Role utilisation lines */}
-            {Object.entries(ROLE_TARGETS).map(([role, target]) => (
-              <Line 
-                key={role}
-                type="monotone" 
-                dataKey={role} 
-                name={`${role} (Target: ${target * 100}%)`}
-                stroke={roleColors[role]}
-                strokeWidth={2}
-                dot={{ r: 3 }}
-                activeDot={{ r: 5 }}
-              />
-            ))}
+            {Object.entries(ROLE_TARGETS)
+              .filter(([role]) => role !== "Team Lead")
+              .map(([role, target]) => (
+                <Line 
+                  key={role}
+                  type="monotone" 
+                  dataKey={role} 
+                  name={`${role} (Target: ${target * 100}%)`}
+                  stroke={roleColors[role]}
+                  strokeWidth={2}
+                  dot={{ r: 3 }}
+                  activeDot={{ r: 5 }}
+                />
+              ))}
           </LineChart>
         </ResponsiveContainer>
       </div>
       <div className="mt-4 space-y-1 text-center text-xs text-slate-400">
-        <p>Shows monthly utilisation percentage vs targets</p>
+        <p>Shows weekly productivity utilisation percentage vs targets</p>
+        <p>Utilisation = Productive Hours ÷ Total Worked Hours (same as KPI tiles)</p>
         <p>Dashed lines indicate role-specific utilisation targets</p>
       </div>
     </div>

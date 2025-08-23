@@ -5,9 +5,27 @@ import { X } from 'lucide-react'
 
 dayjs.extend(isoWeek)
 
-// Overtime rules
-const OVERTIME_DAILY_THRESHOLD = 7.5
+// Overtime rules - using the same logic as OvertimeIncidence
 const OUTLIER_DAILY_THRESHOLD = 12
+
+/**
+ * Normalizes member names to handle variations like "Bolton, Mark" vs "Mark Bolton"
+ * @param {string} memberName 
+ * @returns {string}
+ */
+function normalizeMemberName(memberName) {
+  if (!memberName) return 'Unknown'
+  
+  // Handle "Last, First" format
+  if (memberName.includes(',')) {
+    const parts = memberName.split(',').map(part => part.trim())
+    if (parts.length >= 2) {
+      return `${parts[1]} ${parts[0]}`
+    }
+  }
+  
+  return memberName.trim()
+}
 
 export default function CalendarHeatmap({ filteredRows }) {
   const [selectedDay, setSelectedDay] = useState(null)
@@ -21,7 +39,7 @@ export default function CalendarHeatmap({ filteredRows }) {
     const allMembers = new Set()
     
     for (const row of filteredRows) {
-      const member = row.Member || 'Unknown'
+      const member = normalizeMemberName(row.Member || 'Unknown')
       const date = dayjs(row.dateObj)
       const dateKey = date.format('YYYY-MM-DD')
       const dow = date.isoWeekday() // 1=Monday, 7=Sunday
@@ -38,30 +56,78 @@ export default function CalendarHeatmap({ filteredRows }) {
           dateKey,
           dow,
           isWeekend: dow >= 6,
-          hours: 0,
+          isBankHoliday: false,
+          productiveHours: 0,
+          nonWorkingHours: 0,
+          dailyBaseline: 0,
           entries: []
         }
       }
       
-      memberDateData[member][dateKey].hours += row.Hours
-      memberDateData[member][dateKey].entries.push({
+      const dayData = memberDateData[member][dateKey]
+      const hours = parseFloat(row.Hours) || 0
+      
+      if (hours <= 0) continue
+      
+      // Set daily baseline based on member and day
+      if (dayData.dailyBaseline === 0) {
+        if (dow >= 6) {
+          dayData.dailyBaseline = 0 // Weekends
+        } else if (member === 'Mark Bolton') {
+          dayData.dailyBaseline = dow <= 4 ? 8.25 : 4.5 // Compressed schedule
+        } else {
+          dayData.dailyBaseline = 7.5 // Standard
+        }
+      }
+      
+      // Check if this is a bank holiday entry
+      if (row["Work Type"] === "Bank/Holiday Leave") {
+        dayData.isBankHoliday = true
+        dayData.nonWorkingHours += hours
+      }
+      // Check if this is other non-working time
+      else if (["Sick Leave", "Training"].includes(row["Work Type"])) {
+        dayData.nonWorkingHours += hours
+      }
+      // Productive work
+      else if (row.Productivity === "Productive") {
+        dayData.productiveHours += hours
+      }
+      
+      // Keep track of total hours for display
+      dayData.hours = (dayData.hours || 0) + hours
+      
+      dayData.entries.push({
         project: row['Project/Ticket'] || 'Unknown',
         company: row.Company || 'Unknown',
         hours: row.Hours
       })
     }
     
-    // Apply overtime rules
+    // Apply overtime rules - using the same logic as OvertimeIncidence
     for (const member in memberDateData) {
       for (const dateKey in memberDateData[member]) {
         const dayData = memberDateData[member][dateKey]
-        const hours = dayData.hours
         
-        // Overtime: > 7.5h daily OR any weekend hours
-        dayData.isOvertime = hours > OVERTIME_DAILY_THRESHOLD || (dayData.isWeekend && hours > 0)
+        // Calculate overtime using the same logic as OvertimeIncidence
+        let dailyOvertime = 0
         
-        // Outlier: > 12h daily
-        dayData.isOutlier = hours > OUTLIER_DAILY_THRESHOLD
+        if (dayData.isWeekend) {
+          // All productive hours on weekends are overtime
+          dailyOvertime = dayData.productiveHours
+        } else if (dayData.isBankHoliday) {
+          // Any productive hours on bank holiday dates are overtime
+          dailyOvertime = dayData.productiveHours
+        } else {
+          // Normal weekday - calculate overtime above baseline
+          dailyOvertime = Math.max(0, dayData.productiveHours - dayData.dailyBaseline)
+        }
+        
+        dayData.isOvertime = dailyOvertime > 0
+        dayData.overtimeHours = dailyOvertime
+        
+        // Outlier: > 12h daily (total hours)
+        dayData.isOutlier = dayData.hours > OUTLIER_DAILY_THRESHOLD
       }
     }
     
@@ -71,25 +137,24 @@ export default function CalendarHeatmap({ filteredRows }) {
     }
   }, [filteredRows])
   
-  // Get color intensity based on hours
+  // Get color intensity based on overtime hours
   const getDayColor = (dayData) => {
     if (!dayData) return '#334155' // Lighter slate for no data - better contrast
     
     const hours = dayData.hours
     if (hours === 0) return '#334155' // Lighter slate for zero hours - better contrast
     
-    // Base intensity on hours (0-12h scale)
-    const intensity = Math.min(hours / 12, 1)
-    
     if (dayData.isOutlier) {
       // Bright red for outliers - much more visible
-      return `rgba(239, 68, 68, ${0.8 + intensity * 0.2})`
+      return `rgba(239, 68, 68, 0.9)`
     } else if (dayData.isOvertime) {
-      // Bright orange for overtime - much more visible
-      return `rgba(251, 146, 60, ${0.8 + intensity * 0.2})`
+      // Bright orange for overtime - intensity based on overtime hours
+      const overtimeIntensity = Math.min(dayData.overtimeHours / 8, 1) // Scale 0-8h overtime
+      return `rgba(251, 146, 60, ${0.7 + overtimeIntensity * 0.3})`
     } else {
-      // Bright green for normal - much more visible
-      return `rgba(132, 204, 22, ${0.7 + intensity * 0.3})`
+      // Bright green for normal - intensity based on total hours
+      const normalIntensity = Math.min(hours / 8, 1) // Scale 0-8h normal
+      return `rgba(132, 204, 22, ${0.6 + normalIntensity * 0.4})`
     }
   }
   
@@ -208,7 +273,7 @@ export default function CalendarHeatmap({ filteredRows }) {
                     className="w-12 h-12 rounded border border-slate-600 cursor-pointer hover:border-lime-400 hover:scale-105 transition-all relative flex items-center justify-center"
                     style={{ backgroundColor: color }}
                     onClick={() => handleDayClick(dayData)}
-                    title={dayData ? `${dayDate.format('MMM DD')}: ${dayData.hours}h${dayData.isOvertime ? ' (OT)' : ''}${dayData.isOutlier ? ' (OUTLIER)' : ''}` : dayDate.format('MMM DD')}
+                    title={dayData ? `${dayDate.format('MMM DD')}: ${dayData.hours}h${dayData.isOvertime ? ` (OT: ${dayData.overtimeHours?.toFixed(1)}h)` : ''}${dayData.isOutlier ? ' (OUTLIER)' : ''}` : dayDate.format('MMM DD')}
                   >
                     {/* Day number */}
                     <span 
@@ -228,7 +293,7 @@ export default function CalendarHeatmap({ filteredRows }) {
                     
                     {/* Outlier badge */}
                     {dayData?.isOutlier && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
+                      <div className="absolute -top-1 -left-1 w-3 h-3 rounded-full bg-red-500 border-2 border-white shadow-sm"></div>
                     )}
                     
                     {/* Hours text */}
@@ -256,7 +321,7 @@ export default function CalendarHeatmap({ filteredRows }) {
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(251, 146, 60, 0.8)' }}></div>
-            <span>Overtime (&gt;7.5h or weekend)</span>
+            <span>Overtime (above baseline or weekend)</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 rounded" style={{ backgroundColor: 'rgba(239, 68, 68, 0.8)' }}></div>
@@ -277,7 +342,11 @@ export default function CalendarHeatmap({ filteredRows }) {
                 </h4>
                 <p className="text-sm text-slate-400">
                   {selectedDay.hours}h total
-                  {selectedDay.isOvertime && <span className="text-orange-400 ml-2">OVERTIME</span>}
+                  {selectedDay.isOvertime && (
+                    <span className="text-orange-400 ml-2">
+                      OVERTIME ({selectedDay.overtimeHours?.toFixed(1)}h)
+                    </span>
+                  )}
                   {selectedDay.isOutlier && <span className="text-red-400 ml-2">OUTLIER</span>}
                 </p>
               </div>

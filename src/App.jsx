@@ -819,7 +819,22 @@ function WeeklyTeamBankHolidayTrend({ filteredRows, onExport, onReset }) {
       
       // Simplified approach - just use the weeks we have data for
       const seriesData = allWeeks.map(week => {
-        const weekEntry = { week }
+        // Convert ISO week to date format for display
+        const weekMatch = week.match(/(\d{4})-W(\d{2})/)
+        let displayWeek = week
+        if (weekMatch) {
+          const year = parseInt(weekMatch[1])
+          const weekNum = parseInt(weekMatch[2])
+          // Get the Monday of the week (ISO week starts on Monday)
+          const startOfYear = dayjs().year(year).startOf('year')
+          const mondayOfWeek = startOfYear.add((weekNum - 1) * 7, 'day').startOf('isoWeek')
+          displayWeek = `${mondayOfWeek.format('DD/MM')} (W${weekNum.toString().padStart(2, '0')})`
+        }
+        
+        const weekEntry = { 
+          week,
+          displayWeek
+        }
         teamsList.forEach(team => {
           weekEntry[team] = roundToQuarter(teamWeekData[week]?.[team] || 0)
         })
@@ -843,9 +858,13 @@ function WeeklyTeamBankHolidayTrend({ filteredRows, onExport, onReset }) {
         <EmptyState title="No annual leave trend data" onReset={onReset} />
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={series} margin={{ left: 8, right: 16, top: 8, bottom: 24 }}>
+          <LineChart data={series} margin={{ left: 8, right: 16, top: 8, bottom: 80 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-            <XAxis dataKey="week" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
+            <XAxis 
+              dataKey="displayWeek" 
+              tick={{ fill: '#cbd5e1', fontSize: 10, angle: -90, textAnchor: 'end' }}
+              height={80}
+            />
             <YAxis tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <ReTooltip 
               content={({ active, payload, label }) => {
@@ -862,7 +881,7 @@ function WeeklyTeamBankHolidayTrend({ filteredRows, onExport, onReset }) {
                       }}
                     >
                       <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
-                        Week {label}
+                        {label}
                       </p>
                       <div className="space-y-1">
                         {payload.map((item, index) => (
@@ -1159,7 +1178,22 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
       
       // Simplified approach - just use the weeks we have data for
       const seriesData = allWeeks.map(week => {
-        const weekEntry = { week }
+        // Convert ISO week to date format for display
+        const weekMatch = week.match(/(\d{4})-W(\d{2})/)
+        let displayWeek = week
+        if (weekMatch) {
+          const year = parseInt(weekMatch[1])
+          const weekNum = parseInt(weekMatch[2])
+          // Get the Monday of the week (ISO week starts on Monday)
+          const startOfYear = dayjs().year(year).startOf('year')
+          const mondayOfWeek = startOfYear.add((weekNum - 1) * 7, 'day').startOf('isoWeek')
+          displayWeek = `${mondayOfWeek.format('DD/MM')} (W${weekNum.toString().padStart(2, '0')})`
+        }
+        
+        const weekEntry = { 
+          week,
+          displayWeek
+        }
         teamsList.forEach(team => {
           weekEntry[team] = roundToQuarter(teamWeekData[week]?.[team] || 0)
         })
@@ -1183,9 +1217,13 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
         <EmptyState title="No team trend data" onReset={onReset} />
       ) : (
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={series} margin={{ left: 8, right: 16, top: 8, bottom: 24 }}>
+          <LineChart data={series} margin={{ left: 8, right: 16, top: 8, bottom: 80 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#475569" />
-            <XAxis dataKey="week" tick={{ fill: '#cbd5e1', fontSize: 12 }} />
+            <XAxis 
+              dataKey="displayWeek" 
+              tick={{ fill: '#cbd5e1', fontSize: 10, angle: -90, textAnchor: 'end' }}
+              height={80}
+            />
             <YAxis tick={{ fill: '#cbd5e1', fontSize: 12 }} />
             <ReTooltip 
               content={({ active, payload, label }) => {
@@ -1202,7 +1240,7 @@ function WeeklyTeamTrend({ filteredRows, onExport, onReset }) {
                       }}
                     >
                       <p className="text-sm font-semibold mb-2" style={{ textShadow, color: '#B5C933' }}>
-                        Week {label}
+                        {label}
                       </p>
                       <div className="space-y-1">
                         {payload.map((item, index) => (
